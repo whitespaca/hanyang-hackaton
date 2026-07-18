@@ -45,5 +45,6 @@ export async function readLocalImageBlob(
     throw new Error("압축한 이미지가 비어 있습니다.");
   }
 
-  return new Blob([bytes], { type: "image/jpeg" });
+  const copiedBytes = Uint8Array.from(bytes);
+  return new Blob([copiedBytes.buffer], { type: "image/jpeg" });
 }
