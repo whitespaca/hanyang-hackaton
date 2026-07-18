@@ -3,11 +3,11 @@
 ## 감사 기준
 
 - 감사 날짜: 2026-07-19 (Asia/Seoul)
-- branch: `main`
-- 검증 기준 commit: `63681dfd5a6f8126a389740ebb9b1f362ae75521`
+- branch: `docs/android-device-qa-pass`
+- 검증 기준 commit: `e38703dab54cb8997a172813bc30d1288cd2f1d4` (`origin/main`)
 - 작업 시작 상태: clean
-- 현재 상태: 아래 P1/P2 변경이 working tree에 있으며 아직 commit/원격 CI가 실행되지 않음
-- CI: [run 29651292516](https://github.com/whitespaca/hanyang-hackaton/actions/runs/29651292516), 기준 commit에서 `node`, `api`, `ml-smoke`, `e2e` 모두 PASS
+- 현재 상태: Android 실기기 access-log evidence를 문서에 반영하는 문서 전용 변경
+- CI status: not independently verified in this task
 
 ## 실제 모델과 평가 자료
 
@@ -28,13 +28,33 @@
 
 | 영역 | 상태 | 이유 |
 |---|---|---|
-| Android physical QA | NOT RUN | 연결된 물리 기기와 `adb` 없음 |
-| iOS physical QA | NOT RUN | 물리 기기와 macOS/Xcode signing 환경 없음 |
-| LAN device QA | NOT RUN | 물리 기기 evidence 없음 |
+| Android LAN API reachability | PASS | tester가 제공한 `GET /api/v1/health` 200 access log |
+| Android multipart classification | PASS | tester가 제공한 `POST /api/v1/classifications` 200 access log |
+| Android guide/feedback flow | PASS | category/detail guide 200, feedback 201 access log |
+| Android extended QA | NOT RUN | camera/gallery 독립 실행, offline/retry, history, back evidence 없음 |
+| iOS physical QA | DEFERRED | 물리 기기 없음; 현재 Android 중심 릴리스 범위 밖 |
 | public API/Web deployment | NOT DEPLOYED | provider project와 credential, 실제 URL 없음 |
 | production public CORS | NOT RUN | 공개 origin 없음 |
 | Docker static config | PASS | `docker compose config` |
 | Docker build/runtime | NOT RUN | Docker client는 있으나 daemon pipe 연결 불가 |
+
+### Android physical-device status
+
+Verified from FastAPI access logs supplied by the tester:
+
+- LAN health endpoint: PASS
+- Multipart classification request: PASS
+- Main guide request: PASS
+- Detailed guide request: PASS
+- Feedback submission: PASS
+
+Not yet verified:
+
+- health payload model mode (`modelLoaded`, `inferenceMode`, `fallbackReason`)
+- camera and gallery as separate input paths
+- offline/timeout/retry
+- history persistence
+- Android back behavior
 
 ## 저장소 위생
 
@@ -44,7 +64,7 @@
 - dataset tip 제거, history rewrite, LFS migration은 사용자 승인 없이 수행하지 않았습니다.
 - `.pt`, `.pth`, `.onnx`, `artifacts/model/`, `dist/`는 일반 Git commit에서 제외됩니다.
 
-## 이번 working tree 로컬 검증
+## 이전 자동 검증 기록
 
 - PASS: frozen `pnpm install`, guide validation, lint, typecheck, unit tests, build
 - PASS: API ruff/format/mypy/22 tests와 model predictor 7 tests
@@ -52,12 +72,14 @@
 - PASS: mock Playwright 8 tests, actual-model Playwright 1 test
 - PASS: actual model test, Expo doctor 20/20, production-like API/CORS smoke
 - PASS: production environment를 넣은 `docker compose config`
-- NOT RUN: Docker build/runtime, physical-device QA, public deployment smoke
+- NOT RUN: Docker build/runtime, public deployment smoke
+
+이번 문서 반영 작업의 CI 상태는 별도로 확인하지 않았습니다.
 
 ## 판정
 
 - 실제 모델: **PASS — LOCAL ARTIFACT/API/WEB VERIFIED**
 - Playwright: **PASS — 8 MOCK SCENARIOS + 1 ACTUAL-MODEL SMOKE**
-- Device: **AUTOMATION READY, MANUAL DEVICE QA REQUIRED**
+- Device: **ANDROID LAN CORE REQUESTS PASS; EXTENDED MANUAL QA REQUIRED**
 - Deployment: **DEPLOYMENT READY, NOT DEPLOYED**
 - ONNX: **ACTUAL PARITY/BENCHMARK PASS, RUNTIME ADOPTION DEFERRED**
