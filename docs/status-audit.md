@@ -7,7 +7,7 @@
 - 검증 기준 commit: `e38703dab54cb8997a172813bc30d1288cd2f1d4` (`origin/main`)
 - 작업 시작 상태: clean
 - 현재 상태: Android 실기기 access-log evidence를 문서에 반영하는 문서 전용 변경
-- CI status: not independently verified in this task
+- CI: GitHub Actions run `29663299848`에서 초기 PR 문서 커밋 `d3dd526`의 `node`, `api`, `ml-smoke`, `e2e` job 모두 PASS
 
 ## 실제 모델과 평가 자료
 
@@ -74,7 +74,7 @@ Not yet verified:
 - PASS: production environment를 넣은 `docker compose config`
 - NOT RUN: Docker build/runtime, public deployment smoke
 
-이번 문서 반영 작업의 CI 상태는 별도로 확인하지 않았습니다.
+이번 문서 반영 작업의 초기 커밋 `d3dd526`은 GitHub Actions run `29663299848`에서 검증됐습니다.
 
 ## 판정
 

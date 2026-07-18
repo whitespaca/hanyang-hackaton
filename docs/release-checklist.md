@@ -34,7 +34,7 @@
 - [ ] Docker image runtime verified
 - [ ] Model release package published
 
-CI status: **not independently verified in this task**.
+CI status: **PASS** — GitHub Actions run `29663299848`에서 초기 PR 문서 커밋 `d3dd526`의 `node`, `api`, `ml-smoke`, `e2e` job이 모두 성공했습니다.
 
 ## Deferred validation
 
