@@ -1,0 +1,104 @@
+{
+  "version": "2026-07-18",
+  "locale": "ko-KR",
+  "disclaimer": "이 안내는 일반적인 분리배출 원칙을 요약한 것입니다. 지역별 수거 품목과 배출 방식이 다를 수 있으므로 관할 지자체 기준을 함께 확인해주세요.",
+  "sourceNote": "환경부의 일반적인 분리배출 원칙을 바탕으로 해커톤 시연용 행동 지침으로 정리했습니다.",
+  "categories": [
+    {
+      "id": "metal",
+      "label": "금속",
+      "description": "캔과 고철 등 금속류",
+      "subcategories": [
+        { "id": "can", "label": "음료·식품 캔", "recyclability": "yes", "steps": ["내용물을 완전히 비웁니다.", "물로 가볍게 헹군 뒤 눌러서 캔류로 배출합니다."], "warnings": ["플라스틱 뚜껑 등 다른 재질은 가능한 한 분리하세요."], "keywords": ["캔", "통조림", "음료캔"] },
+        { "id": "scrap-metal", "label": "고철", "recyclability": "conditional", "steps": ["붙어 있는 고무·플라스틱을 가능한 한 제거합니다.", "다치지 않게 묶거나 용기에 담아 고철류로 배출합니다."], "warnings": ["크기가 큰 품목은 대형폐기물 기준을 확인하세요."], "keywords": ["고철", "철사", "금속"] },
+        { "id": "sharp-metal", "label": "날카로운 금속", "recyclability": "conditional", "steps": ["날 부분을 두꺼운 종이로 감쌉니다.", "겉면에 위험 표시를 한 뒤 지역 기준에 맞게 배출합니다."], "warnings": ["수거 작업자가 다치지 않도록 노출된 날을 반드시 가리세요."], "keywords": ["칼", "면도날", "날카로운"] },
+        { "id": "spray-can", "label": "부탄가스·스프레이 캔", "recyclability": "special", "steps": ["화기 없는 통풍이 잘되는 곳에서 내용물을 완전히 사용합니다.", "지역 지침에 따라 가스 제거 후 지정 장소에 배출합니다."], "warnings": ["불 가까이에서 구멍을 뚫지 마세요.", "지자체마다 천공 여부 기준이 다릅니다."], "keywords": ["부탄가스", "스프레이", "에어로졸"] }
+      ]
+    },
+    {
+      "id": "glass",
+      "label": "유리",
+      "description": "유리병과 깨진 유리류",
+      "subcategories": [
+        { "id": "beverage-glass-bottle", "label": "음료·식품 유리병", "recyclability": "yes", "steps": ["내용물을 비우고 물로 헹굽니다.", "뚜껑과 다른 재질 부속을 분리해 유리병류로 배출합니다."], "warnings": ["보증금 반환 대상 병은 판매점 반환을 우선 확인하세요."], "keywords": ["유리병", "음료병", "잼병"] },
+        { "id": "broken-glass", "label": "깨진 유리", "recyclability": "no", "steps": ["조각을 신문지나 두꺼운 종이로 여러 겹 감쌉니다.", "겉면에 깨진 유리라고 표시해 지역 종량제 기준에 맞게 배출합니다."], "warnings": ["유리병 수거함에 넣으면 수거 작업자가 다칠 수 있습니다."], "keywords": ["깨진유리", "유리조각", "파편"] },
+        { "id": "mirror-ceramic-heat-resistant", "label": "거울·도자기·내열유리", "recyclability": "no", "steps": ["깨지지 않도록 포장합니다.", "불연성 폐기물 전용 봉투 등 지역 기준에 맞게 배출합니다."], "warnings": ["일반 유리병과 녹는 온도가 달라 함께 재활용하기 어렵습니다."], "keywords": ["거울", "도자기", "내열유리"] }
+      ]
+    },
+    {
+      "id": "biological",
+      "label": "음식물·생물성",
+      "description": "음식물과 생물성 잔재",
+      "subcategories": [
+        { "id": "food-waste", "label": "일반 음식물", "recyclability": "conditional", "steps": ["물기와 이물질을 최대한 제거합니다.", "지역 음식물 전용 용기나 종량제 방식에 맞게 배출합니다."], "warnings": ["지역별 음식물 분류 기준을 확인하세요."], "keywords": ["음식물", "잔반", "채소"] },
+        { "id": "bones-shells", "label": "뼈·딱딱한 껍데기", "recyclability": "no", "steps": ["수분을 제거합니다.", "동물 뼈와 패각류 등은 일반 종량제 봉투에 배출합니다."], "warnings": ["달걀 껍데기 등 세부 기준은 지역마다 다를 수 있습니다."], "keywords": ["뼈", "조개껍데기", "갑각류"] },
+        { "id": "tea-bag-herbal", "label": "티백·한약재", "recyclability": "no", "steps": ["남은 물기를 제거합니다.", "티백 끈과 포장재를 분리한 뒤 내용물은 지역 기준에 따라 일반쓰레기로 배출합니다."], "warnings": ["퇴비화 가능 여부는 지역 시설 기준을 확인하세요."], "keywords": ["티백", "차", "한약재"] }
+      ]
+    },
+    {
+      "id": "paper",
+      "label": "종이",
+      "description": "종이와 오염된 종이류",
+      "subcategories": [
+        { "id": "clean-paper", "label": "깨끗한 종이", "recyclability": "yes", "steps": ["비닐 코팅과 스프링 등 다른 재질을 제거합니다.", "물기에 젖지 않게 펼치거나 묶어서 종이류로 배출합니다."], "warnings": ["감열지와 코팅지는 일반 종이와 구분하세요."], "keywords": ["종이", "신문", "책"] },
+        { "id": "coated-or-contaminated-paper", "label": "코팅·오염된 종이", "recyclability": "no", "steps": ["재활용 가능한 깨끗한 부분이 있으면 분리합니다.", "기름이나 음식물로 오염된 부분은 일반 종량제 봉투에 배출합니다."], "warnings": ["영수증과 방수 코팅지는 종이류로 재활용하기 어렵습니다."], "keywords": ["영수증", "코팅지", "기름종이"] }
+      ]
+    },
+    {
+      "id": "battery",
+      "label": "배터리",
+      "description": "건전지와 충전식 배터리",
+      "subcategories": [
+        { "id": "household-battery", "label": "일반 건전지", "recyclability": "special", "steps": ["가능하면 양극과 음극을 테이프로 절연합니다.", "공동주택·주민센터 등의 폐건전지 수거함에 배출합니다."], "warnings": ["일반 종량제 봉투에 넣지 마세요."], "keywords": ["건전지", "AA", "AAA"] },
+        { "id": "rechargeable-battery", "label": "충전식 배터리", "recyclability": "special", "steps": ["기기에서 분리하고 단자를 절연합니다.", "폐배터리 수거함 또는 제조사 회수처에 배출합니다."], "warnings": ["부풀거나 손상된 배터리는 누르거나 충전하지 마세요."], "keywords": ["리튬", "충전지", "배터리"] },
+        { "id": "power-bank", "label": "보조배터리", "recyclability": "special", "steps": ["전원을 끄고 케이블을 분리합니다.", "폐건전지 수거함이 아닌 보조배터리 수거 가능 지점을 확인해 배출합니다."], "warnings": ["화재 위험 때문에 일반쓰레기나 재활용품에 섞지 마세요."], "keywords": ["보조배터리", "파워뱅크", "충전기"] }
+      ]
+    },
+    {
+      "id": "trash",
+      "label": "일반쓰레기",
+      "description": "재활용이 어려운 생활 폐기물",
+      "subcategories": [
+        { "id": "general-trash", "label": "일반쓰레기", "recyclability": "no", "steps": ["재활용품과 음식물 등 분리 가능한 부분을 먼저 나눕니다.", "남은 폐기물은 지역 종량제 봉투에 담아 지정 시간에 배출합니다."], "warnings": ["대형·유해 폐기물은 별도 신고 또는 수거 기준을 확인하세요."], "keywords": ["일반쓰레기", "종량제", "폐기물"] }
+      ]
+    },
+    {
+      "id": "cardboard",
+      "label": "골판지",
+      "description": "택배 상자 등 골판지류",
+      "subcategories": [
+        { "id": "cardboard-box", "label": "골판지 상자", "recyclability": "yes", "steps": ["테이프·송장·스티로폼을 모두 제거합니다.", "상자를 펼쳐 납작하게 만든 뒤 젖지 않게 묶어 배출합니다."], "warnings": ["기름이나 음식물로 심하게 오염된 부분은 제거해 일반쓰레기로 배출하세요."], "keywords": ["박스", "택배상자", "골판지"] }
+      ]
+    },
+    {
+      "id": "shoes",
+      "label": "신발",
+      "description": "재사용 가능한 신발과 폐신발",
+      "subcategories": [
+        { "id": "reusable-shoes", "label": "재사용 가능한 신발", "recyclability": "conditional", "steps": ["흙과 이물질을 털고 한 켤레를 묶습니다.", "의류 수거함의 신발 수거 여부를 확인한 뒤 배출합니다."], "warnings": ["모든 의류 수거함이 신발을 받는 것은 아닙니다."], "keywords": ["운동화", "구두", "재사용"] },
+        { "id": "damaged-shoes", "label": "훼손된 신발", "recyclability": "no", "steps": ["금속 장식 등 쉽게 분리되는 부속을 제거합니다.", "지역 기준에 따라 일반 종량제 봉투에 배출합니다."], "warnings": ["젖거나 심하게 훼손된 신발은 의류 수거함에 넣지 마세요."], "keywords": ["낡은신발", "폐신발", "훼손"] }
+      ]
+    },
+    {
+      "id": "clothes",
+      "label": "의류",
+      "description": "재사용 가능한 의류와 폐섬유",
+      "subcategories": [
+        { "id": "reusable-clothes", "label": "재사용 가능한 의류", "recyclability": "conditional", "steps": ["세탁하고 완전히 말립니다.", "투명 봉투 등에 담아 의류 수거함의 허용 품목을 확인해 배출합니다."], "warnings": ["젖은 옷과 오염된 옷은 다른 의류를 훼손할 수 있습니다."], "keywords": ["옷", "헌옷", "의류수거함"] },
+        { "id": "damaged-or-wet-clothes", "label": "훼손·젖은 의류", "recyclability": "no", "steps": ["물기를 충분히 말리고 부피를 줄입니다.", "지역 기준에 따라 일반 종량제 또는 폐기물 방식으로 배출합니다."], "warnings": ["오염되거나 젖은 의류는 수거함에 넣지 마세요."], "keywords": ["젖은옷", "찢어진옷", "오염의류"] }
+      ]
+    },
+    {
+      "id": "plastic",
+      "label": "플라스틱",
+      "description": "페트병·용기·비닐·스티로폼",
+      "subcategories": [
+        { "id": "pet-bottle", "label": "투명 페트병", "recyclability": "yes", "steps": ["내용물을 비우고 물로 가볍게 헹굽니다.", "라벨을 제거하고 찌그러뜨린 뒤 뚜껑을 닫아 배출합니다."], "warnings": ["지역별 투명 페트병 별도 배출 요일을 확인하세요."], "keywords": ["페트병", "생수병", "음료병"] },
+        { "id": "plastic-container", "label": "플라스틱 용기", "recyclability": "conditional", "steps": ["내용물과 음식물을 완전히 비우고 헹굽니다.", "다른 재질의 라벨과 부속을 떼어 플라스틱류로 배출합니다."], "warnings": ["씻어도 오염이 제거되지 않으면 일반쓰레기로 배출하세요."], "keywords": ["플라스틱용기", "반찬통", "컵"] },
+        { "id": "vinyl", "label": "비닐", "recyclability": "conditional", "steps": ["내용물을 비우고 이물질을 닦아냅니다.", "깨끗한 비닐만 흩날리지 않게 모아 비닐류로 배출합니다."], "warnings": ["오염이 제거되지 않은 비닐은 일반쓰레기로 배출하세요."], "keywords": ["비닐", "봉지", "포장지"] },
+        { "id": "styrofoam", "label": "스티로폼", "recyclability": "conditional", "steps": ["테이프·라벨·내용물을 모두 제거합니다.", "깨끗하고 흰 완충재만 지역 스티로폼 수거 방식에 맞게 배출합니다."], "warnings": ["색상·코팅·오염 스티로폼은 재활용이 어려울 수 있습니다."], "keywords": ["스티로폼", "완충재", "발포수지"] },
+        { "id": "unknown-plastic", "label": "재질을 알 수 없는 플라스틱", "recyclability": "conditional", "steps": ["제품의 분리배출 표시와 재질 코드를 확인합니다.", "표시가 없거나 복합재질이면 지역 기준에 따라 일반쓰레기로 배출합니다."], "warnings": ["AI 결과만으로 재질을 확정하지 말고 제품 표시를 우선하세요."], "keywords": ["기타플라스틱", "복합재질", "재질미상"] }
+      ]
+    }
+  ]
+}

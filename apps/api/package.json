@@ -1,0 +1,13 @@
+{
+  "name": "api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "uv run fastapi dev app/main.py --host 0.0.0.0",
+    "build": "uv run python -m compileall -q app",
+    "lint": "uv run ruff check . && uv run ruff format --check .",
+    "typecheck": "uv run mypy app",
+    "test": "uv run pytest",
+    "test:model": "uv run --extra model pytest tests/test_model_predictor.py"
+  }
+}

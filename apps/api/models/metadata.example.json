@@ -1,0 +1,11 @@
+{
+  "modelName": "mobilenet_v3_small",
+  "modelVersion": "mobilenetv3-small-gcv2-001",
+  "inputSize": [224, 224],
+  "classes": ["metal", "glass", "biological", "paper", "battery", "trash", "cardboard", "shoes", "clothes", "plastic"],
+  "normalization": {
+    "mean": [0.485, 0.456, 0.406],
+    "std": [0.229, 0.224, 0.225]
+  },
+  "confidenceThreshold": 0.65
+}

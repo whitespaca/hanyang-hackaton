@@ -1,0 +1,30 @@
+{
+  "name": "bunrishot",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.14.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:web": "pnpm --filter web dev",
+    "dev:mobile": "pnpm --filter mobile start",
+    "dev:api": "pnpm --filter api dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:e2e": "pnpm --filter web test:e2e",
+    "test:model": "pnpm --filter api test:model",
+    "test:ml": "cd ml && uv run pytest",
+    "build": "turbo build",
+    "format": "prettier --write .",
+    "check": "pnpm validate:guides && pnpm lint && pnpm typecheck && pnpm test",
+    "validate:guides": "node scripts/validate-guides.mjs"
+  },
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.6",
+    "typescript": "^5.9.2"
+  }
+}

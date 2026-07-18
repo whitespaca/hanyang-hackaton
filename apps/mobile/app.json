@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "분리샷",
+    "slug": "bunrishot",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "bunrishot",
+    "userInterfaceStyle": "light",
+    "plugins": [
+      "expo-router",
+      ["expo-camera", { "cameraPermission": "쓰레기 사진을 촬영하기 위해 카메라 접근이 필요합니다." }],
+      ["expo-image-picker", { "photosPermission": "분석할 쓰레기 사진을 선택하기 위해 사진 접근이 필요합니다." }]
+    ],
+    "experiments": { "typedRoutes": true },
+    "android": { "package": "com.bunrishot.app" },
+    "ios": { "bundleIdentifier": "com.bunrishot.app", "supportsTablet": true },
+    "web": { "bundler": "metro", "output": "static" }
+  }
+}
