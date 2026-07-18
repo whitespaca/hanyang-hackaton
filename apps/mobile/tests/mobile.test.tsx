@@ -9,7 +9,7 @@ import {
 import { inspectApiBaseUrl } from "@/lib/apiConfig";
 import {
   calculateResizeDimensions,
-  readLocalImageBlob,
+  createNativeImageUploadPart,
 } from "@/lib/imageProcessing";
 import { getPermissionUiState } from "@/lib/permissions";
 
@@ -72,58 +72,18 @@ describe("mobile P0", () => {
     });
   });
 
-  it("reads local image bytes without using Response.blob", async () => {
-    const readBytes = jest
-      .fn()
-      .mockResolvedValue(new Uint8Array([0xff, 0xd8, 0xff, 0xd9]));
-    const readBlob = jest.fn(() => {
-      throw new Error("Response.blob must not be called");
+  it("creates a React Native multipart file without reading it into a Blob", () => {
+    expect(createNativeImageUploadPart("file:///cache/upload.jpg")).toEqual({
+      uri: "file:///cache/upload.jpg",
+      name: "upload.jpg",
+      type: "image/jpeg",
     });
-    const fetchImplementation = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 0,
-      bytes: readBytes,
-      blob: readBlob,
-    } as unknown as Response);
+  });
 
-    const blob = await readLocalImageBlob(
-      "file:///cache/upload.jpg",
-      fetchImplementation as unknown as typeof fetch,
+  it("rejects an empty compressed image path", () => {
+    expect(() => createNativeImageUploadPart("  ")).toThrow(
+      "압축한 이미지 경로가 비어 있습니다.",
     );
-
-    expect(blob.size).toBe(4);
-    expect(blob.type).toBe("image/jpeg");
-    expect(readBytes).toHaveBeenCalledTimes(1);
-    expect(readBlob).not.toHaveBeenCalled();
-  });
-
-  it("rejects an empty compressed image", async () => {
-    const fetchImplementation = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 0,
-      bytes: jest.fn().mockResolvedValue(new Uint8Array()),
-    } as unknown as Response);
-
-    await expect(
-      readLocalImageBlob(
-        "file:///cache/empty.jpg",
-        fetchImplementation as unknown as typeof fetch,
-      ),
-    ).rejects.toThrow("압축한 이미지가 비어 있습니다.");
-  });
-
-  it("reports runtimes that do not expose Response.bytes", async () => {
-    const fetchImplementation = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 0,
-    } as unknown as Response);
-
-    await expect(
-      readLocalImageBlob(
-        "file:///cache/upload.jpg",
-        fetchImplementation as unknown as typeof fetch,
-      ),
-    ).rejects.toThrow("이미지 바이트 읽기를 지원하지 않습니다.");
   });
 
   it("warns about device loopback but allows the Android emulator host", () => {
