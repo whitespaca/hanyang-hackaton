@@ -6,10 +6,12 @@ from collections import Counter, defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from PIL import Image, UnidentifiedImageError
-from torch import Tensor
-from torch.utils.data import Dataset
+
+if TYPE_CHECKING:
+    from torch import Tensor
 
 EXPECTED_CLASSES = (
     "metal",
@@ -38,7 +40,7 @@ class ImageRecord:
     class_index: int
 
 
-class GarbageDataset(Dataset[tuple[Tensor, int]]):
+class GarbageDataset:
     def __init__(
         self, records: list[ImageRecord], transform: Callable[[Image.Image], Tensor]
     ) -> None:

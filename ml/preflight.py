@@ -64,11 +64,13 @@ def build_report(data_dir: Path, seed: int, check_corrupt: bool) -> dict[str, ob
 def main() -> None:
     args = parse_args()
     report = build_report(args.data_dir, args.seed, args.check_corrupt)
-    payload = json.dumps(report, ensure_ascii=False, indent=2)
     if args.manifest_out:
         args.manifest_out.parent.mkdir(parents=True, exist_ok=True)
-        args.manifest_out.write_text(payload + "\n", encoding="utf-8")
-    print(payload)
+        args.manifest_out.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+    summary = {key: value for key, value in report.items() if key != "manifest"}
+    print(json.dumps(summary, ensure_ascii=False, indent=2))
     if report["corruptFiles"]:
         raise SystemExit(2)
 

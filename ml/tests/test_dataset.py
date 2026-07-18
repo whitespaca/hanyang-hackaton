@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -7,6 +9,21 @@ from PIL import Image
 
 from dataset import EXPECTED_CLASSES, detect_layout, discover_splits, relative_manifest
 from preflight import build_report
+
+
+def test_dataset_discovery_import_does_not_load_torch() -> None:
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import sys, dataset; assert 'torch' not in sys.modules",
+        ],
+        cwd=Path(__file__).resolve().parents[1],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def write_image(path: Path, color: int) -> None:
