@@ -6,10 +6,9 @@ export interface ImageDimensions {
   height: number;
 }
 
-export interface NativeImageUploadPart {
-  uri: string;
-  name: string;
-  type: "image/jpeg";
+export interface UploadFileState {
+  exists: boolean;
+  size: number;
 }
 
 export function calculateResizeDimensions(
@@ -29,13 +28,11 @@ export function calculateResizeDimensions(
   };
 }
 
-export function createNativeImageUploadPart(
-  uri: string,
-  name = "upload.jpg",
-): NativeImageUploadPart {
-  if (!uri.trim()) {
-    throw new Error("압축한 이미지 경로가 비어 있습니다.");
+export function validateUploadFile(file: UploadFileState): void {
+  if (!file.exists) {
+    throw new Error("압축한 이미지 파일이 존재하지 않습니다.");
   }
-
-  return { uri, name, type: "image/jpeg" };
+  if (file.size <= 0) {
+    throw new Error("압축한 이미지 파일이 비어 있습니다.");
+  }
 }
