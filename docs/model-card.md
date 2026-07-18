@@ -2,27 +2,32 @@
 
 ## 개요
 
-- 데이터셋: Kaggle Garbage Classification V2
-- 클래스: metal, glass, biological, paper, battery, trash, cardboard, shoes, clothes, plastic
-- 아키텍처: MobileNetV3 Small transfer learning
-- 입력: EXIF 보정 RGB, 224×224, ImageNet normalization
-- 학습 날짜/실행 ID: NOT RUN
-- artifact 통합 상태: 임시 미학습 state dict로 API load/forward smoke 검증 완료, 실제 학습 checkpoint 없음
+- model: MobileNetV3 Small transfer learning
+- version: `gcv2-mobilenetv3s-20260718-1529`
+- dataset: Kaggle Garbage Classification V2의 로컬 12,259-image snapshot
+- classes: metal, glass, biological, paper, battery, trash, cardboard, shoes, clothes, plastic
+- input: EXIF 보정 RGB, 224×224 deterministic resize/center crop, ImageNet normalization
+- output: metadata class order의 softmax Top-3
+- runtime SHA-256: `8828193dfddc7b2c32f4a0c88b288e56659af6bf13047026e9ae06468590ec71`
 
 ## 평가
 
-실제 데이터셋 checkpoint가 이 저장소에 없으므로 accuracy, macro F1, Top-3 accuracy, 클래스별 지표는 모두 **NOT RUN**입니다. 측정되지 않은 수치를 발표에 사용하지 않습니다. 실제 상태와 재현 명령은 [model-evaluation](model-evaluation.md)에 기록합니다.
+Seed 42 stratified split의 test 1,227장에서 Accuracy 0.9087, Macro F1 0.9037, Weighted F1 0.9088, Top-3 Accuracy 0.9821을 기록했습니다. confidence 0.65 미만 비율은 0.0905입니다. 세부 지표와 혼동 분석은 [실제 모델 평가](model-evaluation.md)에 있습니다.
 
-`pnpm test:model`의 성공은 serialization과 추론 코드 경로가 동작한다는 뜻일 뿐 모델 정확도를 의미하지 않습니다.
+이 결과는 같은 dataset source의 holdout split 측정입니다. 별도 스마트폰 촬영 사진 평가는 **NOT RUN**이며 현장 일반화를 증명하지 않습니다.
 
 ## 의도된 사용
 
-일상 폐기물 한 개의 대분류 후보를 제시해 사용자가 분리배출 가이드로 빠르게 이동하도록 돕는 용도입니다. 안전·법적 판단, 유해물질 식별, 여러 물체 탐지에는 사용하지 않습니다.
+한 이미지의 대표 쓰레기 물체를 10개 대분류 후보로 좁혀 사용자가 확인·수정한 뒤 배출 가이드로 이동하도록 돕습니다. 안전·법적 판단, 유해물질 식별, 여러 물체 탐지, 지역별 규정의 자동 확정에는 사용하지 않습니다.
 
-## 한계
+## 한계와 완화
 
-배경, 조명, 오염, 투명/반사 재질, 복합 포장과 학습 데이터 domain shift에 취약할 수 있습니다. 지역별 규정을 알지 못하며 실제 재질을 화학적으로 판별하지 않습니다. 모든 결과에 Top 3·confidence·수정 경로를 제공합니다.
+배경, 조명, 반사, 오염, 복합재질, 절단된 물체와 domain shift에 취약할 수 있습니다. 특히 plastic/glass, glass/metal, cardboard/paper 혼동이 test set에서 관찰됐습니다. UI는 Top-3와 confidence를 표시하고 모든 결과에 사용자 확인·수정 경로를 제공합니다. 배출 기준은 지역별로 다시 확인해야 합니다.
 
 ## 개인정보
 
-API는 원본 이미지를 추론 메모리에서만 사용하고 저장하지 않습니다. 분류 ID, client, Top 1, confidence, 모델 버전과 명시적 피드백만 익명 집계합니다.
+API는 원본 이미지를 추론 메모리에서만 사용하고 disk/DB에 저장하지 않습니다. SQLite에는 익명 classification/feedback 최소 정보만 저장하며 Mobile history에도 image binary와 URI를 저장하지 않습니다.
+
+## 배포
+
+Model binary는 일반 Git에서 제외합니다. matching metadata와 SHA-256 release package를 read-only model volume 또는 검증된 artifact 전달 경로로 배포합니다. Production model mode는 누락·불일치·dependency 오류에서 fail-fast하며 mock fallback을 허용하지 않습니다.

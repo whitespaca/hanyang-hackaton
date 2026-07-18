@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import io
+import json
 
 from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.config import API_DIR, ROOT_DIR, Settings
+from app.domain import GARBAGE_CLASSES
 from app.main import create_app
 
 
@@ -38,12 +40,23 @@ def main() -> None:
     health.raise_for_status()
     result.raise_for_status()
     health_body = health.json()
-    predictions = result.json()["predictions"]
+    result_body = result.json()
+    predictions = result_body["predictions"]
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     assert health_body["inferenceMode"] == "model"
     assert health_body["modelLoaded"] is True
     assert health_body["fallbackReason"] is None
+    assert health_body["modelVersion"] == metadata["modelVersion"]
+    assert result_body["classificationId"]
+    assert result_body["model"] == {
+        "name": metadata["modelName"],
+        "version": metadata["modelVersion"],
+        "inferenceMode": "model",
+    }
     assert len(predictions) == 3
     assert all(0 <= prediction["confidence"] <= 1 for prediction in predictions)
+    assert all(prediction["className"] in GARBAGE_CLASSES for prediction in predictions)
+    assert sum(prediction["confidence"] for prediction in predictions) <= 1.0001
     assert [prediction["confidence"] for prediction in predictions] == sorted(
         (prediction["confidence"] for prediction in predictions), reverse=True
     )

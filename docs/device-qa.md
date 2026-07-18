@@ -3,52 +3,54 @@
 ## 실행 기록
 
 ```text
-Date: 2026-07-18
-Commit: bbb1fc80d9da29f6b4f8d7e4ca7b1180b282f172 + uncommitted P1/P2 changes
+Date: 2026-07-19
+Commit: 63681dfd5a6f8126a389740ebb9b1f362ae75521 + current working-tree changes
 Device: NOT AVAILABLE
 OS: NOT RUN
 Expo Go / Preview version: NOT RUN
-API URL: NOT RUN
-Inference mode: NOT RUN
-Model version: NOT RUN
+API URL: NOT RUN on device
+Inference mode: model verified on development PC only
+Model version: gcv2-mobilenetv3s-20260718-1529
 Tester: Codex automated checks only
 ```
 
+Android LAN: **NOT RUN — physical Android device unavailable**
+
+Android public API: **NOT RUN — public API not deployed**
+
+iOS LAN: **NOT RUN — physical iOS device and macOS/Xcode environment unavailable**
+
+iOS public API: **NOT RUN — public API not deployed**
+
 | Scenario | Android | iOS | Evidence | Notes |
 |---|---|---|---|---|
-| Camera permission dialog | NOT RUN | NOT RUN | 없음 | physical device unavailable |
-| Camera capture/preview | NOT RUN | NOT RUN | 없음 | physical device unavailable |
-| Gallery select/cancel | NOT RUN | NOT RUN | 없음 | physical device unavailable |
-| LAN health/classification | NOT RUN | NOT RUN | 없음 | device/LAN unavailable |
-| Image resize/JPEG upload | AUTOMATED PASS | AUTOMATED PASS | Jest resize test | native manipulator requires manual confirmation |
-| Network timeout/error UX | AUTOMATED PASS | AUTOMATED PASS | shared client + mobile tests | airplane-mode manual test required |
-| Permission denied/restricted UI | AUTOMATED PASS | AUTOMATED PASS | mobile permission branch tests | OS dialog manual test required |
-| History survives restart | NOT RUN | NOT RUN | limit/storage unit coverage only | app restart manual test required |
-| Android back | NOT RUN | N/A | 없음 | Android device required |
+| Camera permission dialog/capture | NOT RUN | NOT RUN | 없음 | OS dialog와 native camera는 물리 기기 필요 |
+| Gallery select/cancel/orientation | NOT RUN | NOT RUN | 없음 | unit logic만 검증 |
+| LAN health/model classification | NOT RUN | NOT RUN | 없음 | LAN IP 후보는 확인했지만 device evidence 없음 |
+| Public API classification | NOT RUN | NOT RUN | 없음 | 공개 URL 없음 |
+| Resize/JPEG upload contract | AUTOMATED PASS | AUTOMATED PASS | mobile Jest | native manipulator 결과 수동 확인 필요 |
+| Permission denied/restricted UI | AUTOMATED PASS | AUTOMATED PASS | mobile tests | 실제 설정 이동은 수동 확인 필요 |
+| Timeout/offline/retry UI | AUTOMATED PASS | AUTOMATED PASS | shared/mobile tests | airplane-mode 수동 확인 필요 |
+| History limit/no image data | AUTOMATED PASS | AUTOMATED PASS | history tests | 앱 재시작 persistence 수동 확인 필요 |
+| Android back / iOS gesture | NOT RUN | NOT RUN | 없음 | 실제 navigation gesture 필요 |
 
-Android: **NOT RUN — physical device unavailable**
+## 자동 준비 상태
 
-iOS: **NOT RUN — device/macOS signing environment unavailable**
-
-LAN API: **NOT RUN — physical device and LAN evidence unavailable**
-
-## 자동 준비 완료 항목
-
-- `EXPO_PUBLIC_API_BASE_URL` parsing과 invalid URL fallback
-- 실제 기기 `localhost`/`127.0.0.1` 경고, Android emulator `10.0.2.2` 허용
-- 개발 전용 health 진단: URL, HTTP, mode, model loaded/version, fallback/error
-- 1280px aspect-ratio 계산과 JPEG quality 0.8 upload
-- not-determined/granted/denied/restricted/unavailable 권한 상태 helper
-- camera 권한이 없어도 gallery를 사용할 수 있다는 한국어 안내
-- 원본 URI/binary를 history에 저장하지 않는 기존 계약
-- Expo doctor 자동 검증
+- `EXPO_PUBLIC_API_BASE_URL` 검증과 실제 기기 loopback 경고
+- Android emulator `10.0.2.2` 허용
+- 개발 전용 health 진단: URL, HTTP status, mode, model loaded/version, fallback/error
+- 긴 변 1280px 비율 유지와 JPEG quality 0.8
+- camera/gallery 권한 분기와 갤러리 대안
+- history 최대 20개, 원본 URI/binary 미저장
+- Expo doctor와 mobile test 명령
 
 ## 수동 실행 절차
 
-1. PC와 기기를 같은 Wi-Fi에 연결합니다.
-2. `ipconfig`로 PC IPv4를 확인합니다.
-3. `apps/mobile/.env`에 `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:8000`을 설정합니다.
-4. `pnpm dev:api`, `pnpm dev:mobile`을 실행하고 private network 방화벽에서 8000을 허용합니다.
-5. 홈 `개발용 API 진단`에서 HTTP 200과 mode/model/fallback을 캡처합니다.
-6. 카메라 허용·거절·제한, gallery 취소, 촬영/분류, 네트워크 단절, restart history, Android back을 실행합니다.
-7. 위 표에 device/OS/Expo version, screenshot/video/log 위치와 결과를 기록합니다.
+1. PC와 기기를 같은 Wi-Fi에 연결하고 VPN/AP isolation을 끕니다.
+2. Windows `ipconfig`에서 활성 adapter의 IPv4를 확인합니다.
+3. API를 `0.0.0.0:8000` model mode로 시작하고 Windows Firewall private network를 허용합니다.
+4. `apps/mobile/.env`에 `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:8000`을 설정하고 Expo cache를 초기화합니다.
+5. 기기 브라우저와 앱의 개발용 API 진단에서 health/version/fallback을 캡처합니다.
+6. 카메라 허용·거절, gallery 취소, 세로/가로/대형 이미지, correction/guide/feedback, offline/retry, 앱 재시작 history를 확인합니다.
+7. 공개 API 배포 후 LAN 결과와 분리해 같은 시나리오를 반복합니다.
+8. 개인 사진 대신 민감하지 않은 test object를 사용하고 device/OS/Expo/request ID/evidence를 이 문서에 기록합니다.

@@ -17,6 +17,10 @@ def png_bytes(color: tuple[int, int, int] = (28, 120, 92)) -> bytes:
     return stream.getvalue()
 
 
+def test_sqlite_memory_database_remains_a_sqlite_special_path() -> None:
+    assert Settings(database_url="sqlite:///:memory:").sqlite_path() == Path(":memory:")
+
+
 @pytest.fixture
 def client(tmp_path: Path) -> TestClient:
     settings = Settings(
@@ -128,9 +132,13 @@ def test_feedback_and_statistics(client: TestClient) -> None:
 
 
 def test_model_mode_falls_back_only_outside_production(tmp_path: Path) -> None:
+    missing_model = tmp_path / "missing-model.pt"
+    missing_metadata = tmp_path / "missing-metadata.json"
     development = Settings(
         app_env="development",
         inference_mode="model",
+        model_path=missing_model,
+        model_metadata_path=missing_metadata,
         database_url=f"sqlite:///{tmp_path / 'dev.db'}",
         guides_path=ROOT_DIR / "data" / "disposal-guides.ko.json",
     )
@@ -142,6 +150,8 @@ def test_model_mode_falls_back_only_outside_production(tmp_path: Path) -> None:
     production = Settings(
         app_env="production",
         inference_mode="model",
+        model_path=missing_model,
+        model_metadata_path=missing_metadata,
         database_url=f"sqlite:///{tmp_path / 'prod.db'}",
         guides_path=ROOT_DIR / "data" / "disposal-guides.ko.json",
         cors_origins="https://web.example.com",

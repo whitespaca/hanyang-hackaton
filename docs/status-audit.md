@@ -2,70 +2,62 @@
 
 ## 감사 기준
 
-- 날짜: 2026-07-18 (Asia/Seoul)
+- 감사 날짜: 2026-07-19 (Asia/Seoul)
 - branch: `main`
-- baseline commit: `bbb1fc80d9da29f6b4f8d7e4ca7b1180b282f172`
-- baseline worktree: clean
-- 구현 후 상태: 이 문서에 적힌 변경은 아직 commit되지 않은 working tree
-- 로컬 도구: Node 24.15.0, pnpm 10.14.0(Corepack), Python 3.12.8/uv Python 3.12.13, uv 0.11.29
-- 저장소 권장 Node: 22.13 이상(Node 22 CI 구성)
+- 검증 기준 commit: `63681dfd5a6f8126a389740ebb9b1f362ae75521`
+- 작업 시작 상태: clean
+- 현재 상태: 아래 P1/P2 변경이 working tree에 있으며 아직 commit/원격 CI가 실행되지 않음
+- CI: [run 29651292516](https://github.com/whitespaca/hanyang-hackaton/actions/runs/29651292516), 기준 commit에서 `node`, `api`, `ml-smoke`, `e2e` 모두 PASS
 
-## 외부 입력 상태
+## 실제 모델과 평가 자료
 
-| 항목 | 상태 | 증거/설명 |
+| 항목 | 상태 | 증거 |
 |---|---|---|
-| `GARBAGE_DATASET_DIR` | NOT SET | 현재 process 환경에 없음 |
-| Kaggle dataset | NOT FOUND | workspace 안에 dataset 구조 없음 |
-| runtime `.pt` | NOT FOUND | `apps/api/models/garbage_classifier.pt` 없음 |
-| runtime `metadata.json` | NOT FOUND | example만 존재 |
-| 실제 metrics | NOT FOUND | 실제 학습 결과 없음 |
-| Android/iOS 물리 기기 | NOT AVAILABLE | 실기기 evidence 없음 |
-| 배포 credential/URL | NOT AVAILABLE | 공개 API/Web project가 제공되지 않음 |
-| Docker daemon | NOT AVAILABLE | Docker client 28.3.3, daemon pipe 연결 실패 |
+| runtime model | PASS | `apps/api/models/garbage_classifier.pt`, 6,236,373 bytes |
+| runtime metadata | PASS | version `gcv2-mobilenetv3s-20260718-1529`, canonical 10-class order |
+| versioned artifact | PASS | `artifacts/model/gcv2-mobilenetv3s-20260718-1529/`, 계약 파일 11개 |
+| metric consistency | PASS | test/report/confusion support 1,227, distribution 합계 일치 |
+| model SHA-256 | PASS | `8828193dfddc7b2c32f4a0c88b288e56659af6bf13047026e9ae06468590ec71` |
+| release package | PASS, local only | `dist/model/gcv2-mobilenetv3s-20260718-1529.zip`, Git 제외 |
+| actual API model test | PASS | 실제 state dict load, health, Top-3, no fallback |
+| actual Web E2E | PASS | 실제 FastAPI model mode와 Next.js 전체 흐름 1개 |
 
-## Baseline
+실제 test 결과는 Accuracy `0.908720456397718`, Macro F1 `0.9037076373391809`, Weighted F1 `0.9087555381472769`, Top-3 Accuracy `0.9820700896495518`, low-confidence rate `0.09046454767726161`입니다.
 
-초기 clean checkout에서 다음이 통과했습니다.
+## 외부 환경 상태
 
-- `pnpm install --frozen-lockfile`: PASS (sandbox network 제한 후 승인된 네트워크로 재실행)
-- `pnpm validate:guides`: PASS, 10 categories / 26 subcategories
-- `pnpm lint`: PASS
-- `pnpm typecheck`: PASS
-- `pnpm test`: PASS
-- `pnpm build`: PASS
-- `pnpm test:ml`: PASS, 2 tests
-- `pnpm test:model`: PASS, 3 tests
-- `pnpm test:e2e`: PASS, 기존 1 scenario
-- `pnpm --filter mobile exec expo-doctor`: PASS, 20/20 checks
-- API `ruff check`, `ruff format --check`, `mypy app`, `pytest`: PASS
+| 영역 | 상태 | 이유 |
+|---|---|---|
+| Android physical QA | NOT RUN | 연결된 물리 기기와 `adb` 없음 |
+| iOS physical QA | NOT RUN | 물리 기기와 macOS/Xcode signing 환경 없음 |
+| LAN device QA | NOT RUN | 물리 기기 evidence 없음 |
+| public API/Web deployment | NOT DEPLOYED | provider project와 credential, 실제 URL 없음 |
+| production public CORS | NOT RUN | 공개 origin 없음 |
+| Docker static config | PASS | `docker compose config` |
+| Docker build/runtime | NOT RUN | Docker client는 있으나 daemon pipe 연결 불가 |
 
-## 구현 후 로컬 검증
+## 저장소 위생
 
-| 영역 | 결과 |
-|---|---|
-| Root lint/typecheck/test/build | PASS |
-| API base after `uv sync` | PASS: 14 passed, 1 model-dependency skip (before expanded model contract tests) |
-| API full environment after model extra | PASS: 21 passed |
-| API temporary model integration | PASS: 7 passed |
-| Actual model check | SKIP: artifact/metadata missing |
-| ML | PASS: 8 passed, 1 filesystem-case skip (ONNX extra installed) |
-| ONNX temporary artifact | PASS: export/checker/runtime parity 1 test |
-| Web unit | PASS: 4 passed |
-| Web Playwright | PASS: 8 passed against real FastAPI mock server |
-| Mobile | PASS: 7 passed |
-| Expo doctor | PASS: 20/20 online checks |
-| Docker static config | PASS: `docker compose config` |
-| Docker build/runtime | FAIL/NOT RUN: build could not start because Docker daemon pipe was unavailable |
-| Public deploy smoke | NOT RUN: URLs/credentials unavailable |
-| Physical device QA | NOT RUN: devices unavailable |
+- `dataset/`은 이제 `.gitignore`로 신규 추적을 차단합니다.
+- 기존 Git index에는 dataset 파일 12,259개가 남아 있습니다.
+- GitHub API가 보고한 repository size는 506,551 KiB이며, 로컬 pack은 `git count-objects -vH` 기준 1.54 GiB입니다.
+- dataset tip 제거, history rewrite, LFS migration은 사용자 승인 없이 수행하지 않았습니다.
+- `.pt`, `.pth`, `.onnx`, `artifacts/model/`, `dist/`는 일반 Git commit에서 제외됩니다.
 
-알려진 경고는 Starlette TestClient의 httpx2 전환 deprecation과 PyTorch legacy ONNX exporter deprecation입니다. 현재 테스트 실패는 아니며 후속 dependency upgrade에서 처리합니다.
+## 이번 working tree 로컬 검증
 
-## 구현 범위 결론
+- PASS: frozen `pnpm install`, guide validation, lint, typecheck, unit tests, build
+- PASS: API ruff/format/mypy/22 tests와 model predictor 7 tests
+- PASS: ML ruff/format/11 passed·1 platform skip, ONNX test
+- PASS: mock Playwright 8 tests, actual-model Playwright 1 test
+- PASS: actual model test, Expo doctor 20/20, production-like API/CORS smoke
+- PASS: production environment를 넣은 `docker compose config`
+- NOT RUN: Docker build/runtime, physical-device QA, public deployment smoke
 
-- 실제 모델: **PARTIAL — CODE READY, TRAINING NOT RUN**
-- Playwright: **PASS**
+## 판정
+
+- 실제 모델: **PASS — LOCAL ARTIFACT/API/WEB VERIFIED**
+- Playwright: **PASS — 8 MOCK SCENARIOS + 1 ACTUAL-MODEL SMOKE**
 - Device: **AUTOMATION READY, MANUAL DEVICE QA REQUIRED**
 - Deployment: **DEPLOYMENT READY, NOT DEPLOYED**
-- Animation: Web/Mobile 경량 전환과 reduced motion 구현
-- ONNX: 임시 계약 smoke 완료, 실제 artifact benchmark와 runtime 채택은 보류
+- ONNX: **ACTUAL PARITY/BENCHMARK PASS, RUNTIME ADOPTION DEFERRED**

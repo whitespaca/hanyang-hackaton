@@ -1,112 +1,112 @@
 # API·Web 배포
 
-## 현재 상태
+## 현재 판정
 
 **DEPLOYMENT READY, NOT DEPLOYED**
 
-공개 provider project, HTTPS URL, credential, 실제 model artifact가 제공되지 않아 배포와 공개 smoke는 실행하지 않았습니다. 이 문서는 provider-neutral Docker 계약을 정의합니다.
+- API URL: NOT DEPLOYED
+- Web URL: NOT DEPLOYED
+- provider/credential: NOT AVAILABLE
+- model: `gcv2-mobilenetv3s-20260718-1529`, 로컬 package와 checksum 준비 완료
+- Docker: `docker compose config` PASS, build/runtime는 daemon pipe가 없어 NOT RUN
+- public CORS/smoke/mobile public API: NOT RUN
 
-## 환경 행렬
+## 배포 계약
 
 | 환경 | APP_ENV | INFERENCE_MODE | CORS | model 정책 |
 |---|---|---|---|---|
-| local demo | development | mock | `http://localhost:3000` | artifact 불필요 |
-| local model | development | model | local exact origins | 오류 시 fallback + health reason 가능 |
+| local demo | development | mock | local exact origin | artifact 불필요 |
+| local model | development/test | model | local exact origin | 오류 시 명시적 fallback 가능 |
 | production | production | model | exact HTTPS Web origin | artifact/dependency/metadata/state 오류 fail-fast |
 
-운영 API:
+API:
 
 ```dotenv
 APP_ENV=production
 INFERENCE_MODE=model
-MODEL_PATH=./models/garbage_classifier.pt
-MODEL_METADATA_PATH=./models/metadata.json
-DATABASE_URL=sqlite:///./data/app.db
+MODEL_PATH=/app/models/garbage_classifier.pt
+MODEL_METADATA_PATH=/app/models/metadata.json
+DATABASE_URL=sqlite:////app/runtime/app.db
 MAX_UPLOAD_BYTES=8388608
 CONFIDENCE_THRESHOLD=0.65
-CORS_ORIGINS=https://web.example.com
+CORS_ORIGINS=https://actual-web.example
 ```
 
-운영 Web build:
+Web build:
 
 ```dotenv
-NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+NEXT_PUBLIC_API_BASE_URL=https://actual-api.example
 ```
 
-`NEXT_PUBLIC_API_BASE_URL`은 브라우저 bundle에 build-time으로 포함됩니다. 값 변경 후 Web image를 다시 build해야 합니다.
+`NEXT_PUBLIC_API_BASE_URL`은 browser bundle에 build-time으로 포함되므로 URL 변경 뒤 Web image를 다시 build합니다.
 
-## 로컬 Docker
+## 모델 전달
 
-기본 compose는 `development/mock`입니다.
+현재 compose는 `/app/models` read-only mount와 `/app/runtime` persistent SQLite volume을 사용합니다. 배포 전 다음 명령으로 matching model/metadata, 실제 평가 자료와 checksum ZIP을 만듭니다.
 
 ```powershell
+uv run --project apps/api python scripts/package-model-release.py `
+  --model apps/api/models/garbage_classifier.pt `
+  --metadata apps/api/models/metadata.json `
+  --output dist/model/gcv2-mobilenetv3s-20260718-1529
+```
+
+Provider에서는 다음 중 하나를 명시적으로 선택합니다.
+
+1. trusted CI가 release ZIP을 내려받고 SHA-256 검증 후 read-only volume에 원자적으로 배치
+2. 비공개 artifact store의 immutable version URL에서 startup 전 다운로드·검증
+3. 승인된 local build context에 model을 주입한 Docker image
+
+일반 Git commit이나 dataset 원본을 전달 수단으로 사용하지 않습니다. 실제 GitHub Release publish는 승인과 credential이 없어 수행하지 않았습니다.
+
+## Docker 검증
+
+```powershell
+$env:APP_ENV="production"
+$env:INFERENCE_MODE="model"
+$env:INSTALL_MODEL_DEPS="true"
+$env:CORS_ORIGINS="https://actual-web.example"
+$env:NEXT_PUBLIC_API_BASE_URL="https://actual-api.example"
 docker compose config
 docker compose build
 docker compose up -d
 docker compose ps
 ```
 
-- Web: `http://localhost:3000`
-- API: `http://localhost:8000/api/v1/health`
-- SQLite: `api-runtime` persistent volume
-- model directory: `apps/api/models` read-only mount
-- Web/API 모두 healthcheck 포함
+완료 기준은 API non-root 실행, `/app/models` read-only, `/app/runtime` writable/persistent, health actual model/no fallback, SQLite feedback write입니다. 이번 환경에서는 daemon이 없어 static config 이후 단계는 실행하지 않았습니다.
 
-운영과 같은 model image를 만들 때:
+## CORS와 smoke
 
-```powershell
-$env:APP_ENV="production"
-$env:INFERENCE_MODE="model"
-$env:INSTALL_MODEL_DEPS="true"
-$env:CORS_ORIGINS="https://web.example.com"
-$env:NEXT_PUBLIC_API_BASE_URL="https://api.example.com"
-docker compose build
-docker compose up -d
-```
-
-production에서 mock, missing `.pt`, invalid metadata/class order/state dict, PyTorch dependency 누락은 성공 배포로 간주하지 않습니다.
-
-## CORS 정책
-
-- 쉼표 구분 origin을 trim하고 빈 값을 제거합니다.
-- origin은 `http(s)://host[:port]`만 허용하며 path/query/fragment를 거부합니다.
-- production은 `*`, localhost, loopback IP, HTTP origin을 거부합니다.
-- credentials는 false이며 GET/POST, Content-Type/X-Request-ID만 허용합니다.
-- allowed/denied preflight와 multiple/whitespace origin은 API tests로 검증합니다.
-
-## 배포 smoke
-
-기본 smoke는 실제 model production을 요구합니다.
+Production CORS는 `*`, HTTP origin, localhost/loopback, path/query/fragment를 거부합니다. 쉼표 origin은 trim하고 빈 값을 제거하며 credentials는 false입니다. 로컬 production-like test에서 exact origin, denied origin, POST preflight, expected headers를 통과했습니다.
 
 ```powershell
 node scripts/smoke-deployment.mjs `
-  --api https://api.example.com `
-  --web https://web.example.com `
-  --allowed-origin https://web.example.com `
-  --fixture C:/path/to/fixture.png
+  --api https://actual-api.example `
+  --web https://actual-web.example `
+  --allowed-origin https://actual-web.example `
+  --fixture C:/path/to/manual-fixture.jpg
 ```
 
-검증 항목은 Web HTTP 성공, API health, `modelLoaded=true`, `inferenceMode=model`, fallback 없음, allowed/denied CORS, credentials false, optional Top 3입니다. 로컬 mock 점검에만 `--allow-mock`을 사용할 수 있습니다.
+공개 smoke는 HTTPS Web/API, health model/no fallback/version, allowed/denied CORS, credentials header 부재와 classification Top-3를 검증합니다.
 
-## 영속성과 보안
+## Deployment record
 
-- `/app/runtime`을 단일-writer SQLite persistent volume에 연결합니다.
-- `/app/models`는 read-only로 배포합니다.
-- HTTPS termination과 request body limit을 provider/proxy에도 적용합니다.
-- 이미지 binary, filename, token, filesystem path를 로그에 남기지 않습니다.
-- `.env`, dataset, `.pt/.pth/.onnx`는 image build context와 Git에서 관리에 주의합니다.
+```text
+Deployment commit: NOT DEPLOYED
+API provider / URL / version: NOT DEPLOYED
+Web provider / URL / version: NOT DEPLOYED
+Model version: gcv2-mobilenetv3s-20260718-1529 (local verified)
+CORS origin: NOT CONFIGURED publicly
+Storage: persistent SQLite volume required, NOT PROVISIONED
+Smoke: NOT RUN publicly
+Rollback target: NOT CREATED
+```
 
 ## Rollback
 
-1. 직전 Web/API image digest와 model version을 배포 기록에 보존합니다.
-2. 새 API health/smoke 실패 시 traffic을 직전 API image로 되돌립니다.
-3. model만 문제라면 직전 `.pt`와 matching metadata를 함께 원자적으로 복구합니다.
-4. Web API URL/CORS mismatch이면 직전 Web image와 CORS 설정을 함께 복구합니다.
-5. SQLite volume을 삭제하지 말고 schema 호환성을 확인합니다.
-6. 긴급 시연은 development/local에서만 명시적 mock으로 전환하고 운영 성공으로 표시하지 않습니다.
-
-## 이번 환경의 검증
-
-- `docker compose config`: PASS
-- `docker compose build/up/ps`: NOT RUN — Docker daemon unavailable
-- public API/Web smoke: NOT RUN — URL/credential/model artifact unavailable
+1. 배포마다 API/Web image digest, model version/checksum, DB volume snapshot 식별자를 기록합니다.
+2. health 또는 smoke 실패 시 직전 image로 traffic을 되돌립니다.
+3. model 문제는 matching `.pt`와 metadata를 함께 원자적으로 이전 version으로 바꿉니다.
+4. Web API URL/CORS mismatch는 직전 Web image와 API CORS 설정을 함께 복구합니다.
+5. SQLite volume은 삭제하지 않고 schema 호환성을 확인합니다.
+6. 운영에서 mock으로 조용히 전환하지 않습니다.

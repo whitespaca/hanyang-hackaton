@@ -84,7 +84,13 @@ pnpm test:model:actual
 
 `apps/api/.env`에서 `INFERENCE_MODE=model`로 전환하고 health가 `modelLoaded=true`, `inferenceMode=model`, `fallbackReason=null`인지 확인합니다. production에서는 artifact 문제가 있으면 API가 시작에 실패하는 것이 정상입니다.
 
-현재 실제 dataset과 artifact가 없어 정확도·Macro F1·Top-3 Accuracy는 측정하지 않았습니다.
+검증된 모델은 `gcv2-mobilenetv3s-20260718-1529`입니다. 로컬 test set 1,227장에서 Accuracy 90.87%, Macro F1 90.37%, Top-3 Accuracy 98.21%를 기록했습니다. 이 수치는 학습 dataset과 같은 출처의 test split 결과이며 실제 스마트폰 촬영 정확도를 보장하지 않습니다.
+
+실제 모델 Web 흐름은 다음 optional smoke로 다시 확인할 수 있습니다. artifact가 없으면 실패 이유를 명확히 출력하며 기본 CI의 mock E2E에는 영향을 주지 않습니다.
+
+```powershell
+pnpm test:e2e:model
+```
 
 ## 발표 전 체크
 
@@ -96,6 +102,8 @@ pnpm test:model:actual
 - [ ] fixture 이미지와 네트워크 실패 백업 준비
 - [ ] dashboard demo/live 표시 확인
 - [ ] 지역별 기준 고지 확인
+
+현재 Android/iOS 항목은 물리 기기 없이 자동 검사만 완료된 상태입니다. 공개 API/Web도 아직 배포되지 않았습니다.
 
 권장 발표 메시지:
 

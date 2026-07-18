@@ -81,5 +81,8 @@ class Settings(BaseSettings):
         prefix = "sqlite:///"
         if not self.database_url.startswith(prefix):
             raise ValueError("Only sqlite:/// DATABASE_URL is supported in the MVP")
-        raw_path = Path(self.database_url.removeprefix(prefix))
+        raw_value = self.database_url.removeprefix(prefix)
+        if raw_value == ":memory:":
+            return Path(":memory:")
+        raw_path = Path(raw_value)
         return self.resolve_api_path(raw_path)

@@ -64,9 +64,11 @@ def evaluate(
         raise RuntimeError("Install ONNX tools with: uv sync --extra onnx") from exc
 
     metadata = load_metadata(metadata_path)
+    pytorch_load_started = time.perf_counter()
     model = build_model(pretrained=False)
     model.load_state_dict(torch.load(model_path, map_location="cpu", weights_only=True))
     model.eval()
+    pytorch_cold_load_ms = (time.perf_counter() - pytorch_load_started) * 1000
     inputs = load_inputs(metadata, fixtures)
 
     load_started = time.perf_counter()
@@ -91,6 +93,15 @@ def evaluate(
         probability_sum_errors.append(abs(float(onnx_probabilities.sum()) - 1.0))
 
     benchmark_input = inputs[0].numpy()
+    benchmark_tensor = inputs[0]
+    with torch.inference_mode():
+        for _ in range(warmup):
+            model(benchmark_tensor)
+        pytorch_timings: list[float] = []
+        for _ in range(samples):
+            started = time.perf_counter()
+            model(benchmark_tensor)
+            pytorch_timings.append((time.perf_counter() - started) * 1000)
     for _ in range(warmup):
         session.run(None, {input_name: benchmark_input})
     timings: list[float] = []
@@ -107,6 +118,12 @@ def evaluate(
         "maxAbsoluteLogitError": maximum_error,
         "maxProbabilitySumError": max(probability_sum_errors),
         "artifactBytes": {"pytorch": model_path.stat().st_size, "onnx": onnx_path.stat().st_size},
+        "pytorchCpu": {
+            "coldLoadMs": pytorch_cold_load_ms,
+            "warmMedianMs": median(pytorch_timings),
+            "warmP95Ms": percentile(pytorch_timings, 95),
+            "samples": samples,
+        },
         "onnxRuntimeCpu": {
             "coldLoadMs": cold_load_ms,
             "warmMedianMs": median(timings),

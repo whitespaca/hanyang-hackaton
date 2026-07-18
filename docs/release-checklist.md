@@ -1,22 +1,26 @@
 # Release checklist
 
-2026-07-18 현재 실제 상태입니다. 외부 evidence가 없는 항목은 체크하지 않았습니다.
+2026-07-19 기준 실제 evidence가 있는 항목만 체크합니다.
 
-- [ ] actual model artifacts created
-- [ ] model evaluation committed with real metrics
+- [x] actual model artifacts created locally
+- [x] model evaluation committed with real metrics
 - [x] API model mode verified with temporary contract artifact
-- [ ] API model mode verified with actual trained artifact
-- [x] Playwright E2E pass (8 scenarios, real mock API)
+- [x] API model mode verified with actual trained artifact
+- [x] actual model Web Playwright smoke pass
+- [x] deterministic mock Playwright E2E pass (8 scenarios)
+- [x] latest known GitHub Actions CI pass at `63681df`
+- [x] production CORS policy tests pass locally
+- [x] model release package/checksum created locally
+- [x] Expo doctor pass
+- [x] ONNX actual export/parity/CPU benchmark pass
 - [ ] Android physical device verified
 - [ ] iOS physical device verified
 - [ ] API deployed
 - [ ] Web deployed
 - [ ] production CORS verified against deployed origins
-- [x] production CORS policy tests pass locally
 - [ ] mobile public API verified
-- [x] README updated to current status
-- [x] mock fallback rehearsed by API tests
-- [x] Expo doctor pass
-- [x] ONNX temporary export/parity smoke pass
+- [ ] Docker image runtime verified
+- [ ] model release package published
+- [ ] current working-tree changes verified by remote CI
 
-Release blockers: actual dataset training/evaluation, actual artifact API smoke, physical-device evidence, public deployment/HTTPS/CORS smoke.
+Release blockers are physical-device evidence, public HTTPS deployment/CORS smoke, Docker runtime evidence, release asset publication approval, and remote CI for the current changes.

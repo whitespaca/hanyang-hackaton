@@ -37,10 +37,14 @@ venv/
 *.sqlite3
 
 data/dataset/
+/dataset/
 datasets/
 runs/
 ml/runs/
 artifacts/model/
+/apps/api/models/*
+!/apps/api/models/README.md
+!/apps/api/models/metadata.example.json
 *.pt
 *.pth
 *.onnx

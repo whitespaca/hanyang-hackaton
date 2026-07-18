@@ -1,46 +1,34 @@
-# ONNX 검토
+# ONNX 실제 모델 검토
 
 ## 결론
 
 **DEFER RUNTIME ADOPTION**
 
-ONNX export/checker/runtime parity 코드는 준비했고 미학습 임시 MobileNetV3 state dict의 smoke test는 통과했습니다. 실제 checkpoint와 대표 이미지가 없으므로 실제 artifact size, cold load, warm p50/p95, memory, Docker image 영향을 비교하지 않았습니다. ONNX가 더 빠르다고 결론 내리지 않습니다.
+실제 `gcv2-mobilenetv3s-20260718-1529` 체크포인트를 opset 17로 export하고 ONNX checker 및 ONNX Runtime CPU parity를 통과했습니다. 이 Windows microbenchmark에서는 ONNX Runtime이 빨랐지만 Docker image, memory, 동시 부하와 운영 안정성을 검증하지 않았으므로 현재 FastAPI runtime은 PyTorch를 유지합니다.
 
-## 구현
+## 실행 조건과 결과
 
-```text
-PyTorch state dict + metadata
-→ ml/export_onnx.py (opset 17)
-→ ONNX checker
-→ ml/onnx_evaluate.py
-→ output shape / Top-1 / Top-3 exact order / max logit error / probability sum
-→ artifact bytes / cold load / warm median,p95
-```
+- 입력: test split의 battery, glass, plastic fixture 각 1장
+- output shape: dynamic batch × 10
+- Top-1 match: 3/3
+- Top-3 exact order match: 3/3
+- max absolute logit error: `3.159046173095703e-05`
+- max probability sum error: `5.960464477539063e-08`
+- PyTorch artifact: 6,236,373 bytes
+- ONNX artifact: 6,122,047 bytes
 
-선택 의존성은 `uv sync --extra onnx`로 설치합니다. API runtime과 기본 ML smoke에는 추가되지 않습니다.
+| CPU microbenchmark | Cold load | Warm median | Warm p95 | Samples |
+|---|---:|---:|---:|---:|
+| PyTorch | 53.41ms | 6.02ms | 11.60ms | 100 |
+| ONNX Runtime | 36.48ms | 1.35ms | 1.88ms | 100 |
 
-## 실행 결과
+같은 process와 224×224 tensor를 사용한 단일 실행 결과이며 API serialization/upload, memory와 concurrency는 포함하지 않습니다. 원본 machine-readable 결과는 `docs/model-results/onnx-evaluation.json`입니다.
 
-| 항목 | 결과 |
-|---|---|
-| Temporary model export | PASS |
-| ONNX checker | PASS |
-| ONNX Runtime load | PASS |
-| Temporary Top-1 parity | PASS |
-| Temporary Top-3 exact order parity | PASS |
-| Temporary max logit error threshold `<1e-4` | PASS |
-| Actual trained checkpoint | NOT RUN |
-| Real fixture 3+ images | NOT RUN |
-| Actual latency/size/memory comparison | NOT RUN |
-| Docker image comparison | NOT RUN |
-
-임시 smoke는 runtime 경로가 동작함을 뜻할 뿐 실제 정확도나 속도 우위를 뜻하지 않습니다.
-
-## 실제 평가 명령
+## 재현
 
 ```powershell
 cd ml
-uv sync --extra onnx
+uv sync --frozen --extra onnx
 uv run python export_onnx.py `
   --model ../apps/api/models/garbage_classifier.pt `
   --metadata ../apps/api/models/metadata.json `
@@ -50,14 +38,11 @@ uv run python onnx_evaluate.py `
   --model ../apps/api/models/garbage_classifier.pt `
   --metadata ../apps/api/models/metadata.json `
   --onnx ../apps/api/models/garbage_classifier.onnx `
-  --fixture C:/fixtures/metal.jpg `
-  --fixture C:/fixtures/glass.jpg `
-  --fixture C:/fixtures/plastic.jpg `
-  --report ../artifacts/onnx-evaluation.json
+  --fixture ../dataset/archive/original/battery/battery_108.jpg `
+  --fixture ../dataset/archive/original/glass/glass_1001.jpg `
+  --fixture ../dataset/archive/original/plastic/plastic_1023.jpg `
+  --warmup 10 --samples 100 `
+  --report ../docs/model-results/onnx-evaluation.json
 ```
 
-fixture를 제공하면 최소 3장을 강제합니다. fixture가 없는 호출은 CI/tooling용 seeded synthetic tensor 3개를 사용하고 `inputMode=synthetic`으로 표시합니다.
-
-## 채택 기준
-
-실제 PyTorch CPU p95, memory 또는 container size 문제가 관찰되고 ONNX가 동일 Top-3 계약을 유지하면서 의미 있게 개선할 때만 API predictor 전환을 별도 변경으로 검토합니다. 현재는 PyTorch를 유지합니다.
+ONNX binary는 Git 제외 대상입니다. runtime 전환은 Docker image/peak memory/동시 요청 benchmark와 predictor integration test를 별도 변경으로 통과한 뒤 결정합니다.

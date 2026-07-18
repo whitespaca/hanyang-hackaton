@@ -1,0 +1,28 @@
+{
+  "inputCount": 3,
+  "inputMode": "fixture",
+  "outputShape": [
+    "batch",
+    10
+  ],
+  "top1MatchRate": 1.0,
+  "top3ExactOrderMatchRate": 1.0,
+  "maxAbsoluteLogitError": 3.159046173095703e-05,
+  "maxProbabilitySumError": 5.960464477539063e-08,
+  "artifactBytes": {
+    "pytorch": 6236373,
+    "onnx": 6122047
+  },
+  "pytorchCpu": {
+    "coldLoadMs": 53.40820000128588,
+    "warmMedianMs": 6.0177499981364235,
+    "warmP95Ms": 11.59811500001524,
+    "samples": 100
+  },
+  "onnxRuntimeCpu": {
+    "coldLoadMs": 36.48110000358429,
+    "warmMedianMs": 1.3450000005832408,
+    "warmP95Ms": 1.8796249976730903,
+    "samples": 100
+  }
+}

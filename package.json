@@ -15,6 +15,7 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "test:e2e": "pnpm --filter web test:e2e",
+    "test:e2e:model": "pnpm --filter web test:e2e:model",
     "test:model": "pnpm --filter api test:model",
     "test:model:actual": "pnpm --filter api test:model:actual",
     "test:ml": "cd ml && uv run pytest",
