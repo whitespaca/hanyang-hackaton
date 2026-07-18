@@ -31,6 +31,8 @@ def evaluate_loader(
     classes: tuple[str, ...],
     device: torch.device,
     confidence_threshold: float = 0.65,
+    *,
+    amp_enabled: bool = False,
 ) -> Evaluation:
     model.eval()
     losses: list[float] = []
@@ -38,12 +40,22 @@ def evaluate_loader(
     predictions: list[int] = []
     confidences: list[float] = []
     top3_hits = 0
+    loss_sum = torch.zeros((), device=device)
+    batch_count = 0
     with torch.inference_mode():
         for images, labels in loader:
-            images, labels = images.to(device), labels.to(device)
-            logits = model(images)
+            images = images.to(device, non_blocking=device.type == "cuda")
+            labels = labels.to(device, non_blocking=device.type == "cuda")
+            with torch.autocast(
+                device_type=device.type,
+                dtype=torch.float16,
+                enabled=amp_enabled,
+            ):
+                logits = model(images)
+                loss = criterion(logits, labels)
             probabilities = torch.softmax(logits, dim=1)
-            losses.append(float(criterion(logits, labels)))
+            loss_sum += loss
+            batch_count += 1
             predictions.extend(logits.argmax(1).cpu().tolist())
             targets.extend(labels.cpu().tolist())
             confidences.extend(probabilities.max(1).values.cpu().tolist())
@@ -52,6 +64,7 @@ def evaluate_loader(
             )
     if not targets:
         raise ValueError("Evaluation loader produced no samples")
+    losses.append(float((loss_sum / batch_count).cpu()))
     confusion = confusion_matrix(targets, predictions, labels=list(range(len(classes))))
     per_class_accuracy = {
         class_name: float(confusion[index, index] / confusion[index].sum())

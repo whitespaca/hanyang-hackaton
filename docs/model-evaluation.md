@@ -46,6 +46,7 @@ uv run python train.py `
   --epochs-head 4 `
   --epochs-finetune 3 `
   --batch-size 32 `
+  --device cuda `
   --seed 42 `
   --check-corrupt
 cd ..
@@ -53,6 +54,10 @@ pnpm test:model:actual
 ```
 
 `--data-dir`이 없으면 `GARBAGE_DATASET_DIR`을 사용하며 CLI가 우선합니다. 폴더 이름은 대소문자를 정규화하고 누락·빈 class·예상 밖 class·중복 normalization을 오류로 처리합니다.
+
+`--device cuda`는 CUDA PyTorch와 NVIDIA GPU가 확인되지 않으면 dataset scan 전에 실패합니다. 실행 시 출력되는 `trainingRuntime`과 산출물의 `training-config.json`에 실제 device, GPU 이름, PyTorch/CUDA build, AMP 사용 여부를 기록합니다.
+
+Windows에서는 multiprocessing spawn이 worker마다 PyTorch CUDA DLL을 로드해 page file 부족(`WinError 1455`)을 일으킬 수 있으므로 기본 `numWorkers`는 0입니다. Linux/macOS 기본값은 최대 4이며, 실제 사용값은 `trainingRuntime`과 `training-config.json`에 기록합니다.
 
 ## Artifact 계약
 

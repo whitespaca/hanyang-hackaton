@@ -44,6 +44,7 @@ uv run python train.py `
   --epochs-head 4 `
   --epochs-finetune 3 `
   --batch-size 32 `
+  --device cuda `
   --seed 42 `
   --check-corrupt
 ```
@@ -56,7 +57,16 @@ uv run python train.py `
 - train augmentation과 deterministic evaluation transform 분리
 - API/evaluation: Resize(256), CenterCrop(224), ImageNet normalization
 
-GPU가 있으면 CUDA, 없으면 CPU를 사용합니다. CPU 학습은 수 시간 이상 걸릴 수 있고 첫 실제 학습은 pretrained weight 다운로드가 필요합니다.
+Windows/Linux의 `uv sync`는 공식 PyTorch CUDA 13.0 wheel을 설치합니다. `--device cuda`는 CUDA를 사용할 수 없을 때 데이터 검사 전에 즉시 실패하므로 GPU 학습을 확실히 요구할 때 사용하세요. 기본값 `--device auto`는 CUDA를 우선하고, CUDA가 없으면 경고 후 CPU를 사용합니다. CUDA에서는 AMP, pinned memory, 비동기 전송을 사용합니다. Windows는 worker 프로세스마다 PyTorch CUDA DLL을 다시 로드해 `WinError 1455`가 발생할 수 있어 `--num-workers 0`이 기본이고, Linux/macOS는 최대 4개가 기본입니다. 충분한 page file을 별도로 구성한 Windows에서만 worker 수를 명시적으로 늘리세요. `--no-amp`로 AMP도 끌 수 있습니다.
+
+설치 및 GPU 확인:
+
+```powershell
+uv sync
+uv run python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+```
+
+CPU 학습은 수 시간 이상 걸릴 수 있고 첫 실제 학습은 pretrained weight 다운로드가 필요합니다.
 
 산출물은 `artifacts/model/<run-id>/`에 versioned 보존하고 runtime `.pt`/metadata를 `apps/api/models/`에 복사합니다. 실제 평가 결과만 `docs/model-results/`에 복사합니다.
 

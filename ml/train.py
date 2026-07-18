@@ -32,6 +32,7 @@ from metrics import Evaluation, evaluate_loader
 from modeling import IMAGENET_MEAN, IMAGENET_STD, build_metadata, build_model
 
 REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
+DEFAULT_NUM_WORKERS = 0 if os.name == "nt" else min(4, os.cpu_count() or 1)
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,7 +52,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--head-lr", type=float, default=1e-3)
     parser.add_argument("--finetune-lr", type=float, default=1e-4)
     parser.add_argument("--weight-decay", type=float, default=1e-4)
-    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--num-workers", type=int, default=DEFAULT_NUM_WORKERS)
+    parser.add_argument("--device", choices=("auto", "cuda", "cpu"), default="auto")
+    parser.add_argument(
+        "--amp",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Use automatic mixed precision on CUDA (enabled by default)",
+    )
     parser.add_argument("--confidence-threshold", type=float, default=0.65)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--check-corrupt", action="store_true")
@@ -63,6 +71,8 @@ def parse_args() -> argparse.Namespace:
         args.data_dir = Path(configured)
     if args.epochs_head < 1 or args.epochs_finetune < 1:
         parser.error("Both training phases require at least one epoch")
+    if args.num_workers < 0:
+        parser.error("--num-workers must be zero or greater")
     if not 0 <= args.confidence_threshold <= 1:
         parser.error("--confidence-threshold must be between 0 and 1")
     return args
@@ -74,6 +84,33 @@ def seed_all(seed: int) -> None:
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def resolve_device(requested: str) -> torch.device:
+    if requested == "cpu":
+        return torch.device("cpu")
+    if torch.cuda.is_available():
+        return torch.device("cuda")
+    if requested == "cuda":
+        raise RuntimeError(
+            "CUDA was requested but this PyTorch installation cannot use it. "
+            f"torch={torch.__version__}, torch.version.cuda={torch.version.cuda!r}. "
+            "Run `uv sync` in ml/ to install the configured CUDA build, then verify "
+            '`uv run python -c "import torch; print(torch.cuda.is_available())"`.'
+        )
+    return torch.device("cpu")
+
+
+def device_summary(device: torch.device, amp_requested: bool) -> dict[str, object]:
+    is_cuda = device.type == "cuda"
+    return {
+        "device": str(device),
+        "deviceName": torch.cuda.get_device_name(device) if is_cuda else "CPU",
+        "torchVersion": torch.__version__,
+        "cudaBuild": torch.version.cuda,
+        "cudaAvailable": torch.cuda.is_available(),
+        "amp": amp_requested and is_cuda,
+    }
 
 
 def make_model(*, pretrained: bool = True) -> nn.Module:
@@ -113,19 +150,30 @@ def train_phase(
     best: tuple[float, dict[str, torch.Tensor] | None],
     phase_name: str,
     confidence_threshold: float,
+    amp_enabled: bool,
 ) -> tuple[tuple[float, dict[str, torch.Tensor] | None], list[dict[str, Any]]]:
     best_score, best_state = best
     history: list[dict[str, Any]] = []
+    scaler = torch.amp.GradScaler("cuda", enabled=amp_enabled)
     for epoch in range(epochs):
         model.train()
-        training_losses: list[float] = []
+        training_loss = torch.zeros((), device=device)
+        batch_count = 0
         for images, labels in loader:
-            images, labels = images.to(device), labels.to(device)
+            images = images.to(device, non_blocking=device.type == "cuda")
+            labels = labels.to(device, non_blocking=device.type == "cuda")
             optimizer.zero_grad(set_to_none=True)
-            loss = criterion(model(images), labels)
-            loss.backward()
-            optimizer.step()
-            training_losses.append(float(loss.detach()))
+            with torch.autocast(
+                device_type=device.type,
+                dtype=torch.float16,
+                enabled=amp_enabled,
+            ):
+                loss = criterion(model(images), labels)
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+            training_loss += loss.detach()
+            batch_count += 1
         metrics = evaluate_loader(
             model,
             validation,
@@ -133,11 +181,12 @@ def train_phase(
             EXPECTED_CLASSES,
             device,
             confidence_threshold,
+            amp_enabled=amp_enabled,
         )
         entry = {
             "phase": phase_name,
             "epoch": epoch + 1,
-            "trainLoss": float(np.mean(training_losses)),
+            "trainLoss": float((training_loss / batch_count).cpu()),
             "validation": metrics.to_dict(),
         }
         history.append(entry)
@@ -187,6 +236,21 @@ def write_evaluation_artifacts(directory: Path, metrics: Evaluation) -> None:
 def main() -> None:
     args = parse_args()
     seed_all(args.seed)
+    device = resolve_device(args.device)
+    amp_enabled = args.amp and device.type == "cuda"
+    runtime = device_summary(device, args.amp)
+    runtime["numWorkers"] = args.num_workers
+    print(json.dumps({"trainingRuntime": runtime}, indent=2))
+    if args.device == "auto" and device.type == "cpu":
+        print(
+            "warning: CUDA is unavailable; training will use CPU. "
+            "Use --device cuda to require GPU and fail fast."
+        )
+    if os.name == "nt" and args.num_workers > 0:
+        print(
+            "warning: DataLoader worker processes on Windows each import PyTorch. "
+            "Use --num-workers 0 if CUDA DLL loading fails with WinError 1455."
+        )
     dataset_root = args.data_dir.resolve()
     splits = discover_splits(dataset_root, args.seed)
     distribution = summarize(splits)
@@ -207,22 +271,27 @@ def main() -> None:
             raise ValueError(f"Found {len(corrupt)} corrupt images: {relative}")
 
     train_transform, evaluation_transform = build_transforms()
+    loader_options: dict[str, object] = {
+        "num_workers": args.num_workers,
+        "pin_memory": device.type == "cuda",
+        "persistent_workers": args.num_workers > 0,
+    }
     loaders: dict[str, DataLoader[tuple[torch.Tensor, torch.Tensor]]] = {
         "train": DataLoader(
             GarbageDataset(splits["train"], train_transform),
             batch_size=args.batch_size,
             shuffle=True,
-            num_workers=args.num_workers,
+            **loader_options,
         ),
         "val": DataLoader(
             GarbageDataset(splits["val"], evaluation_transform),
             batch_size=args.batch_size,
-            num_workers=args.num_workers,
+            **loader_options,
         ),
         "test": DataLoader(
             GarbageDataset(splits["test"], evaluation_transform),
             batch_size=args.batch_size,
-            num_workers=args.num_workers,
+            **loader_options,
         ),
     }
     counts = Counter(record.class_index for record in splits["train"])
@@ -233,7 +302,6 @@ def main() -> None:
         ],
         dtype=torch.float32,
     )
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = make_model().to(device)
     criterion = nn.CrossEntropyLoss(weight=weights.to(device))
     for parameter in model.features.parameters():
@@ -253,6 +321,7 @@ def main() -> None:
         best,
         "head",
         args.confidence_threshold,
+        amp_enabled,
     )
     for parameter in model.features[-2:].parameters():
         parameter.requires_grad = True
@@ -271,6 +340,7 @@ def main() -> None:
         best,
         "finetune",
         args.confidence_threshold,
+        amp_enabled,
     )
     if best[1] is None:
         raise RuntimeError("Training did not produce a validation checkpoint")
@@ -282,6 +352,7 @@ def main() -> None:
         EXPECTED_CLASSES,
         device,
         args.confidence_threshold,
+        amp_enabled=amp_enabled,
     )
 
     run_id = args.run_id or f"gcv2-mobilenetv3s-{datetime.now(UTC).strftime('%Y%m%d-%H%M')}"
@@ -322,6 +393,11 @@ def main() -> None:
         "selectionMetric": "validation_macro_f1",
         "datasetLayout": detect_layout(dataset_root),
         "device": str(device),
+        "deviceName": torch.cuda.get_device_name(device) if device.type == "cuda" else "CPU",
+        "torchVersion": torch.__version__,
+        "cudaBuild": torch.version.cuda,
+        "automaticMixedPrecision": amp_enabled,
+        "numWorkers": args.num_workers,
     }
     _write_json(artifact_dir / "training-config.json", training_config)
     (artifact_dir / "README.md").write_text(

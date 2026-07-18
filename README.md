@@ -87,11 +87,20 @@ uv run python train.py `
   --epochs-head 4 `
   --epochs-finetune 3 `
   --batch-size 32 `
+  --device cuda `
   --seed 42 `
   --check-corrupt
 ```
 
 학습은 versioned `artifacts/model/<run-id>/`에 checkpoint, metadata, config/history, test metrics/report/confusion matrix와 상대경로 manifest를 만들고 런타임 모델·metadata를 `apps/api/models/`에 복사합니다. binary는 Git ignore 대상입니다.
+
+Windows/Linux의 ML 환경은 `uv sync` 시 공식 CUDA 13.0 PyTorch wheel을 사용합니다. `--device cuda`는 GPU를 사용할 수 없으면 즉시 실패하고, 기본 `--device auto`는 CUDA 우선/CPU fallback입니다. 다음 명령에서 `True`와 NVIDIA GPU 이름이 출력되는지 먼저 확인할 수 있습니다.
+
+Windows 학습은 CUDA DLL을 worker마다 중복 로드하지 않도록 DataLoader의 기본값이 `--num-workers 0`입니다. `WinError 1455`가 발생하면 worker 수를 늘리지 말고 page file 설정을 확인하세요.
+
+```powershell
+uv run python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+```
 
 실제 모델 연결:
 

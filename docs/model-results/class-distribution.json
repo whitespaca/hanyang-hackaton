@@ -1,0 +1,38 @@
+{
+  "train": {
+    "metal": 744,
+    "glass": 1388,
+    "biological": 559,
+    "paper": 1068,
+    "battery": 604,
+    "trash": 363,
+    "cardboard": 1129,
+    "shoes": 1159,
+    "clothes": 1514,
+    "plastic": 1277
+  },
+  "val": {
+    "metal": 93,
+    "glass": 174,
+    "biological": 70,
+    "paper": 134,
+    "battery": 76,
+    "trash": 45,
+    "cardboard": 141,
+    "shoes": 145,
+    "clothes": 189,
+    "plastic": 160
+  },
+  "test": {
+    "metal": 93,
+    "glass": 174,
+    "biological": 70,
+    "paper": 134,
+    "battery": 76,
+    "trash": 45,
+    "cardboard": 141,
+    "shoes": 145,
+    "clothes": 189,
+    "plastic": 160
+  }
+}

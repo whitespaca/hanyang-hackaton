@@ -1,8 +1,16 @@
+import sys
+
 import torch
 from torchvision import transforms
 
 from modeling import IMAGENET_MEAN, IMAGENET_STD, build_metadata
-from train import build_transforms, make_model
+from train import (
+    DEFAULT_NUM_WORKERS,
+    build_transforms,
+    device_summary,
+    make_model,
+    resolve_device,
+)
 
 
 def test_mobilenet_forward_shape() -> None:
@@ -29,3 +37,19 @@ def test_evaluation_transform_matches_api_contract() -> None:
     assert isinstance(normalization, transforms.Normalize)
     assert list(normalization.mean) == IMAGENET_MEAN
     assert list(normalization.std) == IMAGENET_STD
+
+
+def test_explicit_cpu_device_is_respected() -> None:
+    device = resolve_device("cpu")
+    summary = device_summary(device, amp_requested=True)
+
+    assert device.type == "cpu"
+    assert summary["deviceName"] == "CPU"
+    assert summary["amp"] is False
+
+
+def test_windows_uses_single_process_data_loading_by_default() -> None:
+    if sys.platform == "win32":
+        assert DEFAULT_NUM_WORKERS == 0
+    else:
+        assert DEFAULT_NUM_WORKERS >= 1
