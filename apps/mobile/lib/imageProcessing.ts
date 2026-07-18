@@ -6,6 +6,8 @@ export interface ImageDimensions {
   height: number;
 }
 
+export type FetchImplementation = typeof fetch;
+
 export function calculateResizeDimensions(
   width: number,
   height: number,
@@ -21,4 +23,18 @@ export function calculateResizeDimensions(
     width: Math.max(1, Math.round(width * scale)),
     height: Math.max(1, Math.round(height * scale)),
   };
+}
+
+export async function readLocalImageBlob(
+  uri: string,
+  fetchImplementation: FetchImplementation = fetch,
+): Promise<Blob> {
+  const response = await fetchImplementation(uri);
+  const blob = await response.blob();
+
+  if (blob.size <= 0) {
+    throw new Error("압축한 이미지가 비어 있습니다.");
+  }
+
+  return blob;
 }
