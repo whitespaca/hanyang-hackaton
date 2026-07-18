@@ -69,9 +69,11 @@ class TorchPredictor:
         model.eval()
         self._torch = torch
         self._model = model
+        resize_size = round(max(input_size) * 256 / 224)
         self._transform = transforms.Compose(
             [
-                transforms.Resize((input_size[0], input_size[1])),
+                transforms.Resize(resize_size),
+                transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize(
                     mean=metadata.normalization.mean,
@@ -103,7 +105,7 @@ def create_predictor(
         return MockPredictor()
     try:
         return TorchPredictor(model_path, metadata_path)
-    except (FileNotFoundError, ImportError, RuntimeError, ValueError) as exc:
+    except (OSError, ImportError, RuntimeError, ValueError) as exc:
         if app_env == "production":
             raise
         return MockPredictor(fallback_reason=str(exc))

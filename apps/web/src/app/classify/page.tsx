@@ -54,7 +54,7 @@ export default function ClassifyPage() {
 
   function reset() { if (previewUrl) URL.revokeObjectURL(previewUrl); setState("idle"); setFile(undefined); setPreviewUrl(undefined); setResult(undefined); setSelectedClass(undefined); setCategory(undefined); setGuide(undefined); setError(""); setFeedbackError(""); }
 
-  return <section className="section container" style={{ maxWidth: 820 }}><p className="eyebrow">AI classify</p><h1 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", margin: "8px 0 12px" }}>{title}</h1><p className="muted" aria-live="polite">AI 예측은 참고 정보입니다. 결과를 확인하거나 직접 수정한 뒤 안내를 확인하세요.</p><div className="card" style={{ padding: "clamp(18px,4vw,34px)", marginTop: 28 }}>
+  return <section className="section container" style={{ maxWidth: 820 }}><p className="eyebrow">AI classify</p><h1 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", margin: "8px 0 12px" }}>{title}</h1><p className="muted" aria-live="polite">AI 예측은 참고 정보입니다. 결과를 확인하거나 직접 수정한 뒤 안내를 확인하세요.</p><div className="card" style={{ padding: "clamp(18px,4vw,34px)", marginTop: 28 }}><div key={state} className="flow-stage">
     {state === "idle" && <UploadDropzone onSelect={selectFile} />}
     {state === "preview" && previewUrl && file && <div style={{ display: "grid", gap: 18 }}><ImagePreview src={previewUrl} fileName={file.name} /><div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><PrimaryButton onClick={analyze}>분석하기</PrimaryButton><PrimaryButton variant="secondary" onClick={reset}>다시 선택</PrimaryButton></div></div>}
     {state === "uploading" && <div role="status" aria-live="polite" style={{ textAlign: "center", padding: 50 }}><div style={{ fontSize: 42 }} aria-hidden>◌</div><strong>Top 3를 계산하는 중입니다…</strong><p className="muted">중복 제출을 막고 있습니다.</p></div>}
@@ -63,5 +63,5 @@ export default function ClassifyPage() {
     {state === "select-subcategory" && category && <SubcategoryPicker category={category} onSelect={chooseSubcategory} />}
     {state === "guide" && guide && <div><GuideChecklist guide={guide} />{feedbackError && <p role="status" style={{ color: "var(--warning)" }}>가이드는 계속 사용할 수 있지만 피드백 저장에 실패했습니다: {feedbackError}</p>}<PrimaryButton onClick={reset}>처음부터 다시</PrimaryButton></div>}
     {state === "error" && <ApiErrorState message={error} onRetry={file ? analyze : reset} />}
-  </div></section>;
+  </div></div></section>;
 }

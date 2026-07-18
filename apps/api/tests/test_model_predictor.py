@@ -14,7 +14,7 @@ models = pytest.importorskip("torchvision.models")
 from app.config import ROOT_DIR, Settings  # noqa: E402
 from app.domain import GARBAGE_CLASSES  # noqa: E402
 from app.main import create_app  # noqa: E402
-from app.predictors import TorchPredictor  # noqa: E402
+from app.predictors import MockPredictor, TorchPredictor, create_predictor  # noqa: E402
 
 
 def write_artifact(directory: Path) -> tuple[Path, Path]:
@@ -67,6 +67,46 @@ def test_torch_predictor_rejects_wrong_class_order(tmp_path: Path) -> None:
         TorchPredictor(model_path, metadata_path)
 
 
+def test_torch_predictor_rejects_invalid_metadata(tmp_path: Path) -> None:
+    model_path, metadata_path = write_artifact(tmp_path)
+    metadata_path.write_text("{not-json", encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        TorchPredictor(model_path, metadata_path)
+
+
+def test_torch_predictor_rejects_state_dict_shape_mismatch(tmp_path: Path) -> None:
+    model_path, metadata_path = write_artifact(tmp_path)
+    state = torch.load(model_path, map_location="cpu", weights_only=True)
+    state.pop("classifier.3.weight")
+    torch.save(state, model_path)
+
+    with pytest.raises(RuntimeError):
+        TorchPredictor(model_path, metadata_path)
+
+
+def test_development_model_failure_falls_back_with_reason(tmp_path: Path) -> None:
+    predictor = create_predictor(
+        "model",
+        tmp_path / "missing.pt",
+        tmp_path / "missing.json",
+        "development",
+    )
+
+    assert isinstance(predictor, MockPredictor)
+    assert predictor.fallback_reason
+
+
+def test_production_model_failure_does_not_fallback(tmp_path: Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        create_predictor(
+            "model",
+            tmp_path / "missing.pt",
+            tmp_path / "missing.json",
+            "production",
+        )
+
+
 def test_production_model_mode_serves_health_and_classification(tmp_path: Path) -> None:
     model_path, metadata_path = write_artifact(tmp_path)
     settings = Settings(
@@ -76,6 +116,7 @@ def test_production_model_mode_serves_health_and_classification(tmp_path: Path) 
         model_metadata_path=metadata_path,
         database_url=f"sqlite:///{tmp_path / 'model.db'}",
         guides_path=ROOT_DIR / "data" / "disposal-guides.ko.json",
+        cors_origins="https://web.example.com",
     )
     image_stream = io.BytesIO()
     Image.new("RGB", (64, 64), (84, 125, 93)).save(image_stream, format="PNG")

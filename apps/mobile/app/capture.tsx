@@ -5,12 +5,14 @@ import { useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { PermissionDenied } from "@/components/ui";
 import { useFlow } from "@/features/classification/FlowContext";
+import { getPermissionUiState } from "@/lib/permissions";
 
 export default function CaptureScreen() {
   const [permission, requestPermission] = useCameraPermissions(); const camera = useRef<CameraView>(null); const [ready, setReady] = useState(false); const { dispatch } = useFlow();
+  const permissionState = getPermissionUiState(permission);
   async function galleryAlternative() { const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ["images"] }); const asset = result.canceled ? undefined : result.assets[0]; if (asset?.uri) { dispatch({ type: "image", image: { uri: asset.uri, width: asset.width, height: asset.height, ...(asset.fileName ? { fileName: asset.fileName } : {}) } }); router.replace("/preview"); } }
   if (!permission) return <View style={styles.center}><Text>카메라 권한을 확인하는 중입니다…</Text></View>;
-  if (!permission.granted) return <PermissionDenied canAskAgain={permission.canAskAgain} onRequest={() => requestPermission()} onGallery={galleryAlternative} />;
+  if (permissionState !== "granted") return <PermissionDenied canAskAgain={permissionState === "not-determined" || permissionState === "denied"} onRequest={() => requestPermission()} onGallery={galleryAlternative} />;
   async function takePhoto() { if (!ready) return; const photo = await camera.current?.takePictureAsync({ quality: .9 }); if (photo?.uri) { dispatch({ type: "image", image: { uri: photo.uri, width: photo.width, height: photo.height, fileName: "camera.jpg" } }); router.replace("/preview"); } }
   return <View style={styles.container}><CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" onCameraReady={() => setReady(true)} /><View style={styles.overlay}><Text style={styles.tip}>물건 하나만 가운데 놓아주세요</Text><View style={styles.frame} /><Pressable disabled={!ready} accessibilityRole="button" accessibilityLabel="사진 촬영" onPress={takePhoto} style={[styles.capture, !ready && { opacity: .5 }]}><View style={styles.captureInner} /></Pressable></View></View>;
 }

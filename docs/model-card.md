@@ -6,12 +6,12 @@
 - 클래스: metal, glass, biological, paper, battery, trash, cardboard, shoes, clothes, plastic
 - 아키텍처: MobileNetV3 Small transfer learning
 - 입력: EXIF 보정 RGB, 224×224, ImageNet normalization
-- 학습 날짜/실행 ID: TBD
-- artifact 통합 상태: 임시 미학습 state dict로 API load/forward smoke 검증 완료, 실제 학습 checkpoint는 TBD
+- 학습 날짜/실행 ID: NOT RUN
+- artifact 통합 상태: 임시 미학습 state dict로 API load/forward smoke 검증 완료, 실제 학습 checkpoint 없음
 
 ## 평가
 
-실제 데이터셋 checkpoint가 이 저장소에 없으므로 accuracy, macro F1, Top-3 accuracy, 클래스별 지표는 모두 **TBD**입니다. 측정되지 않은 수치를 발표에 사용하지 않습니다. `ml/evaluate.py`의 test split 결과만 기록합니다.
+실제 데이터셋 checkpoint가 이 저장소에 없으므로 accuracy, macro F1, Top-3 accuracy, 클래스별 지표는 모두 **NOT RUN**입니다. 측정되지 않은 수치를 발표에 사용하지 않습니다. 실제 상태와 재현 명령은 [model-evaluation](model-evaluation.md)에 기록합니다.
 
 `pnpm test:model`의 성공은 serialization과 추론 코드 경로가 동작한다는 뜻일 뿐 모델 정확도를 의미하지 않습니다.
 

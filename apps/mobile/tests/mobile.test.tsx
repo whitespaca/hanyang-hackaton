@@ -1,6 +1,9 @@
 import { render, screen } from "@testing-library/react-native";
 import { ErrorState, PermissionDenied, PredictionList } from "@/components/ui";
 import { HISTORY_LIMIT, limitHistory, type HistoryItem } from "@/features/history/history";
+import { inspectApiBaseUrl } from "@/lib/apiConfig";
+import { calculateResizeDimensions } from "@/lib/imageProcessing";
+import { getPermissionUiState } from "@/lib/permissions";
 
 describe("mobile P0", () => {
   it("keeps only the latest 20 history items", () => {
@@ -17,5 +20,21 @@ describe("mobile P0", () => {
   });
   it("shows network guidance through an error state", () => {
     render(<ErrorState message="네트워크와 API 주소를 확인해주세요." />); expect(screen.getByText(/네트워크/)).toBeTruthy();
+  });
+  it("keeps image aspect ratio while limiting the long edge", () => {
+    expect(calculateResizeDimensions(4000, 3000)).toEqual({ width: 1280, height: 960 });
+    expect(calculateResizeDimensions(640, 480)).toEqual({ width: 640, height: 480 });
+  });
+  it("warns about device loopback but allows the Android emulator host", () => {
+    expect(inspectApiBaseUrl("http://localhost:8000").warning).toMatch(/LAN IP/);
+    expect(inspectApiBaseUrl("http://10.0.2.2:8000").warning).toBeUndefined();
+    expect(inspectApiBaseUrl("not-a-url").isValid).toBe(false);
+  });
+  it("maps denied and restricted permission branches", () => {
+    expect(getPermissionUiState(null)).toBe("not-determined");
+    expect(getPermissionUiState({ status: "granted", granted: true })).toBe("granted");
+    expect(getPermissionUiState({ status: "denied", canAskAgain: true })).toBe("denied");
+    expect(getPermissionUiState({ status: "denied", canAskAgain: false })).toBe("restricted");
+    expect(getPermissionUiState({ status: "denied", available: false })).toBe("unavailable");
   });
 });

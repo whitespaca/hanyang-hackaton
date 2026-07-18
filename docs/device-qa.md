@@ -1,25 +1,54 @@
 # 모바일 실제 기기 QA
 
-## 준비
+## 실행 기록
 
-1. PC와 휴대폰을 같은 Wi-Fi에 연결합니다.
-2. `ipconfig`에서 PC의 IPv4 주소를 확인합니다.
-3. `apps/mobile/.env`의 `EXPO_PUBLIC_API_BASE_URL`을 `http://<PC-LAN-IP>:8000`으로 설정합니다.
-4. `pnpm dev:api`와 `pnpm dev:mobile`을 실행합니다.
-5. Windows 방화벽에서 Python/FastAPI의 private network 8000 포트 접근을 허용합니다.
+```text
+Date: 2026-07-18
+Commit: bbb1fc80d9da29f6b4f8d7e4ca7b1180b282f172 + uncommitted P1/P2 changes
+Device: NOT AVAILABLE
+OS: NOT RUN
+Expo Go / Preview version: NOT RUN
+API URL: NOT RUN
+Inference mode: NOT RUN
+Model version: NOT RUN
+Tester: Codex automated checks only
+```
 
-## 필수 체크리스트
+| Scenario | Android | iOS | Evidence | Notes |
+|---|---|---|---|---|
+| Camera permission dialog | NOT RUN | NOT RUN | 없음 | physical device unavailable |
+| Camera capture/preview | NOT RUN | NOT RUN | 없음 | physical device unavailable |
+| Gallery select/cancel | NOT RUN | NOT RUN | 없음 | physical device unavailable |
+| LAN health/classification | NOT RUN | NOT RUN | 없음 | device/LAN unavailable |
+| Image resize/JPEG upload | AUTOMATED PASS | AUTOMATED PASS | Jest resize test | native manipulator requires manual confirmation |
+| Network timeout/error UX | AUTOMATED PASS | AUTOMATED PASS | shared client + mobile tests | airplane-mode manual test required |
+| Permission denied/restricted UI | AUTOMATED PASS | AUTOMATED PASS | mobile permission branch tests | OS dialog manual test required |
+| History survives restart | NOT RUN | NOT RUN | limit/storage unit coverage only | app restart manual test required |
+| Android back | NOT RUN | N/A | 없음 | Android device required |
 
-- [ ] 첫 진입에서 카메라 권한 허용 후 촬영 가능
-- [ ] 권한 거절 상태에서 재요청 또는 갤러리 대안 표시
-- [ ] 갤러리 선택 취소 시 화면과 flow state 유지
-- [ ] 촬영·갤러리 이미지가 preview에서 원본 비율로 표시
-- [ ] 분석 전에 긴 변 약 1280px, JPEG quality 0.8로 변환
-- [ ] 실제 기기에서 API Top 3 응답 수신
-- [ ] 네트워크 중단 시 한국어 오류와 재시도 표시
-- [ ] 클래스 수정, 세부 품목, 체크리스트 완료 가능
-- [ ] 최근 기록이 앱 재시작 후 유지되고 20개로 제한
-- [ ] 원본 이미지 URI 또는 binary가 AsyncStorage에 저장되지 않음
-- [ ] Android back 동작으로 flow가 비정상 종료되지 않음
+Android: **NOT RUN — physical device unavailable**
 
-결과는 기기 모델, OS, Expo Go 버전, API 주소, 성공/실패와 재현 절차를 함께 기록합니다.
+iOS: **NOT RUN — device/macOS signing environment unavailable**
+
+LAN API: **NOT RUN — physical device and LAN evidence unavailable**
+
+## 자동 준비 완료 항목
+
+- `EXPO_PUBLIC_API_BASE_URL` parsing과 invalid URL fallback
+- 실제 기기 `localhost`/`127.0.0.1` 경고, Android emulator `10.0.2.2` 허용
+- 개발 전용 health 진단: URL, HTTP, mode, model loaded/version, fallback/error
+- 1280px aspect-ratio 계산과 JPEG quality 0.8 upload
+- not-determined/granted/denied/restricted/unavailable 권한 상태 helper
+- camera 권한이 없어도 gallery를 사용할 수 있다는 한국어 안내
+- 원본 URI/binary를 history에 저장하지 않는 기존 계약
+- Expo doctor 자동 검증
+
+## 수동 실행 절차
+
+1. PC와 기기를 같은 Wi-Fi에 연결합니다.
+2. `ipconfig`로 PC IPv4를 확인합니다.
+3. `apps/mobile/.env`에 `EXPO_PUBLIC_API_BASE_URL=http://<LAN-IP>:8000`을 설정합니다.
+4. `pnpm dev:api`, `pnpm dev:mobile`을 실행하고 private network 방화벽에서 8000을 허용합니다.
+5. 홈 `개발용 API 진단`에서 HTTP 200과 mode/model/fallback을 캡처합니다.
+6. 카메라 허용·거절·제한, gallery 취소, 촬영/분류, 네트워크 단절, restart history, Android back을 실행합니다.
+7. 위 표에 device/OS/Expo version, screenshot/video/log 위치와 결과를 기록합니다.

@@ -1,11 +1,17 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import json
+import os
 import random
+import shutil
 from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch import nn
@@ -15,25 +21,51 @@ from torchvision import transforms
 from dataset import (
     EXPECTED_CLASSES,
     GarbageDataset,
+    detect_layout,
     discover_splits,
     duplicate_hashes,
     find_corrupt,
+    relative_manifest,
     summarize,
 )
-from metrics import evaluate_loader
+from metrics import Evaluation, evaluate_loader
 from modeling import IMAGENET_MEAN, IMAGENET_STD, build_metadata, build_model
+
+REPOSITORY_ROOT = Path(__file__).resolve().parent.parent
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="분리샷 MobileNetV3 Small 학습")
-    parser.add_argument("--data-dir", type=Path, required=True)
+    parser = argparse.ArgumentParser(description="Train the Bunrishot MobileNetV3 Small model")
+    parser.add_argument("--data-dir", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument(
+        "--artifacts-dir", type=Path, default=REPOSITORY_ROOT / "artifacts" / "model"
+    )
+    parser.add_argument(
+        "--results-dir", type=Path, default=REPOSITORY_ROOT / "docs" / "model-results"
+    )
+    parser.add_argument("--run-id")
     parser.add_argument("--epochs-head", type=int, default=4)
     parser.add_argument("--epochs-finetune", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--head-lr", type=float, default=1e-3)
+    parser.add_argument("--finetune-lr", type=float, default=1e-4)
+    parser.add_argument("--weight-decay", type=float, default=1e-4)
+    parser.add_argument("--num-workers", type=int, default=0)
+    parser.add_argument("--confidence-threshold", type=float, default=0.65)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--check-corrupt", action="store_true")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.data_dir is None:
+        configured = os.getenv("GARBAGE_DATASET_DIR")
+        if not configured:
+            parser.error("--data-dir or GARBAGE_DATASET_DIR is required")
+        args.data_dir = Path(configured)
+    if args.epochs_head < 1 or args.epochs_finetune < 1:
+        parser.error("Both training phases require at least one epoch")
+    if not 0 <= args.confidence_threshold <= 1:
+        parser.error("--confidence-threshold must be between 0 and 1")
+    return args
 
 
 def seed_all(seed: int) -> None:
@@ -48,48 +80,7 @@ def make_model(*, pretrained: bool = True) -> nn.Module:
     return build_model(pretrained=pretrained)
 
 
-def train_phase(
-    model: nn.Module,
-    loader: DataLoader,
-    validation: DataLoader,
-    criterion: nn.Module,
-    optimizer: torch.optim.Optimizer,
-    epochs: int,
-    device: torch.device,
-    best: tuple[float, dict[str, torch.Tensor] | None],
-) -> tuple[float, dict[str, torch.Tensor] | None]:
-    best_score, best_state = best
-    for epoch in range(epochs):
-        model.train()
-        for images, labels in loader:
-            images, labels = images.to(device), labels.to(device)
-            optimizer.zero_grad(set_to_none=True)
-            loss = criterion(model(images), labels)
-            loss.backward()
-            optimizer.step()
-        metrics = evaluate_loader(model, validation, criterion, EXPECTED_CLASSES, device)
-        print(f"epoch={epoch + 1} val_loss={metrics.loss:.4f} val_macro_f1={metrics.macro_f1:.4f}")
-        if metrics.macro_f1 > best_score:
-            best_score = metrics.macro_f1
-            best_state = {key: value.detach().cpu() for key, value in model.state_dict().items()}
-    return best_score, best_state
-
-
-def main() -> None:
-    args = parse_args()
-    seed_all(args.seed)
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    splits = discover_splits(args.data_dir.resolve(), args.seed)
-    print(json.dumps(summarize(splits), ensure_ascii=False, indent=2))
-    all_records = sum(splits.values(), [])
-    duplicates = duplicate_hashes(all_records)
-    if duplicates:
-        print(f"동일 hash 후보: {len(duplicates)}그룹 (split 누수 여부를 확인하세요)")
-    if args.check_corrupt:
-        corrupt = find_corrupt(all_records)
-        if corrupt:
-            raise ValueError(f"손상 이미지 {len(corrupt)}개: {corrupt[:10]}")
-
+def build_transforms() -> tuple[transforms.Compose, transforms.Compose]:
     train_transform = transforms.Compose(
         [
             transforms.RandomResizedCrop(224, scale=(0.75, 1)),
@@ -100,7 +91,7 @@ def main() -> None:
             transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
         ]
     )
-    eval_transform = transforms.Compose(
+    evaluation_transform = transforms.Compose(
         [
             transforms.Resize(256),
             transforms.CenterCrop(224),
@@ -108,20 +99,130 @@ def main() -> None:
             transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
         ]
     )
-    loaders = {
+    return train_transform, evaluation_transform
+
+
+def train_phase(
+    model: nn.Module,
+    loader: DataLoader[tuple[torch.Tensor, torch.Tensor]],
+    validation: DataLoader[tuple[torch.Tensor, torch.Tensor]],
+    criterion: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    epochs: int,
+    device: torch.device,
+    best: tuple[float, dict[str, torch.Tensor] | None],
+    phase_name: str,
+    confidence_threshold: float,
+) -> tuple[tuple[float, dict[str, torch.Tensor] | None], list[dict[str, Any]]]:
+    best_score, best_state = best
+    history: list[dict[str, Any]] = []
+    for epoch in range(epochs):
+        model.train()
+        training_losses: list[float] = []
+        for images, labels in loader:
+            images, labels = images.to(device), labels.to(device)
+            optimizer.zero_grad(set_to_none=True)
+            loss = criterion(model(images), labels)
+            loss.backward()
+            optimizer.step()
+            training_losses.append(float(loss.detach()))
+        metrics = evaluate_loader(
+            model,
+            validation,
+            criterion,
+            EXPECTED_CLASSES,
+            device,
+            confidence_threshold,
+        )
+        entry = {
+            "phase": phase_name,
+            "epoch": epoch + 1,
+            "trainLoss": float(np.mean(training_losses)),
+            "validation": metrics.to_dict(),
+        }
+        history.append(entry)
+        print(
+            f"phase={phase_name} epoch={epoch + 1} "
+            f"val_loss={metrics.loss:.4f} val_macro_f1={metrics.macro_f1:.4f}"
+        )
+        if metrics.macro_f1 > best_score:
+            best_score = metrics.macro_f1
+            best_state = {
+                key: value.detach().cpu().clone() for key, value in model.state_dict().items()
+            }
+    return (best_score, best_state), history
+
+
+def _write_json(path: Path, value: object) -> None:
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def write_evaluation_artifacts(directory: Path, metrics: Evaluation) -> None:
+    _write_json(directory / "metrics.json", metrics.to_dict())
+    _write_json(directory / "classification-report.json", metrics.report)
+    with (directory / "confusion-matrix.csv").open("w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["actual/predicted", *EXPECTED_CLASSES])
+        for class_name, row in zip(EXPECTED_CLASSES, metrics.confusion, strict=True):
+            writer.writerow([class_name, *row])
+
+    figure, axis = plt.subplots(figsize=(10, 8))
+    image = axis.imshow(metrics.confusion, cmap="Blues")
+    figure.colorbar(image, ax=axis)
+    axis.set(
+        xticks=range(len(EXPECTED_CLASSES)),
+        yticks=range(len(EXPECTED_CLASSES)),
+        xticklabels=EXPECTED_CLASSES,
+        yticklabels=EXPECTED_CLASSES,
+        xlabel="Predicted",
+        ylabel="Actual",
+        title="Garbage Classification V2 confusion matrix",
+    )
+    plt.setp(axis.get_xticklabels(), rotation=45, ha="right")
+    figure.tight_layout()
+    figure.savefig(directory / "confusion-matrix.png", dpi=160)
+    plt.close(figure)
+
+
+def main() -> None:
+    args = parse_args()
+    seed_all(args.seed)
+    dataset_root = args.data_dir.resolve()
+    splits = discover_splits(dataset_root, args.seed)
+    distribution = summarize(splits)
+    print(json.dumps(distribution, ensure_ascii=False, indent=2))
+    all_records = [record for records in splits.values() for record in records]
+    duplicates = duplicate_hashes(all_records, dataset_root)
+    if duplicates:
+        print(
+            f"warning: found {len(duplicates)} duplicate content hash group(s); "
+            "review split leakage"
+        )
+    if args.check_corrupt:
+        corrupt = find_corrupt(all_records)
+        if corrupt:
+            relative = [
+                path.resolve().relative_to(dataset_root).as_posix() for path in corrupt[:10]
+            ]
+            raise ValueError(f"Found {len(corrupt)} corrupt images: {relative}")
+
+    train_transform, evaluation_transform = build_transforms()
+    loaders: dict[str, DataLoader[tuple[torch.Tensor, torch.Tensor]]] = {
         "train": DataLoader(
             GarbageDataset(splits["train"], train_transform),
             batch_size=args.batch_size,
             shuffle=True,
-            num_workers=0,
+            num_workers=args.num_workers,
         ),
         "val": DataLoader(
-            GarbageDataset(splits["val"], eval_transform), batch_size=args.batch_size, num_workers=0
+            GarbageDataset(splits["val"], evaluation_transform),
+            batch_size=args.batch_size,
+            num_workers=args.num_workers,
         ),
         "test": DataLoader(
-            GarbageDataset(splits["test"], eval_transform),
+            GarbageDataset(splits["test"], evaluation_transform),
             batch_size=args.batch_size,
-            num_workers=0,
+            num_workers=args.num_workers,
         ),
     }
     counts = Counter(record.class_index for record in splits["train"])
@@ -137,48 +238,113 @@ def main() -> None:
     criterion = nn.CrossEntropyLoss(weight=weights.to(device))
     for parameter in model.features.parameters():
         parameter.requires_grad = False
-    best = train_phase(
+
+    best: tuple[float, dict[str, torch.Tensor] | None] = (-1, None)
+    best, head_history = train_phase(
         model,
         loaders["train"],
         loaders["val"],
         criterion,
-        torch.optim.AdamW(model.classifier.parameters(), lr=1e-3),
+        torch.optim.AdamW(
+            model.classifier.parameters(), lr=args.head_lr, weight_decay=args.weight_decay
+        ),
         args.epochs_head,
         device,
-        (-1, None),
+        best,
+        "head",
+        args.confidence_threshold,
     )
     for parameter in model.features[-2:].parameters():
         parameter.requires_grad = True
-    best = train_phase(
+    best, finetune_history = train_phase(
         model,
         loaders["train"],
         loaders["val"],
         criterion,
-        torch.optim.AdamW(filter(lambda value: value.requires_grad, model.parameters()), lr=1e-4),
+        torch.optim.AdamW(
+            (value for value in model.parameters() if value.requires_grad),
+            lr=args.finetune_lr,
+            weight_decay=args.weight_decay,
+        ),
         args.epochs_finetune,
         device,
         best,
+        "finetune",
+        args.confidence_threshold,
     )
     if best[1] is None:
-        raise RuntimeError("최적 checkpoint를 만들지 못했습니다.")
+        raise RuntimeError("Training did not produce a validation checkpoint")
     model.load_state_dict(best[1])
-    metrics = evaluate_loader(model, loaders["test"], criterion, EXPECTED_CLASSES, device)
-    torch.save(best[1], args.output_dir / "garbage_classifier.pt")
-    metadata = build_metadata()
-    (args.output_dir / "metadata.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-    (args.output_dir / "metrics.json").write_text(
-        json.dumps(metrics.__dict__, indent=2), encoding="utf-8"
+    metrics = evaluate_loader(
+        model,
+        loaders["test"],
+        criterion,
+        EXPECTED_CLASSES,
+        device,
+        args.confidence_threshold,
     )
-    print(
-        json.dumps(
-            {
-                "accuracy": metrics.accuracy,
-                "macroF1": metrics.macro_f1,
-                "top3Accuracy": metrics.top3_accuracy,
+
+    run_id = args.run_id or f"gcv2-mobilenetv3s-{datetime.now(UTC).strftime('%Y%m%d-%H%M')}"
+    artifact_dir = args.artifacts_dir.resolve() / run_id
+    artifact_dir.mkdir(parents=True, exist_ok=False)
+    runtime_dir = args.output_dir.resolve()
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    results_dir = args.results_dir.resolve()
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    model_path = artifact_dir / "garbage_classifier.pt"
+    torch.save(best[1], model_path)
+    metadata = build_metadata(run_id)
+    metadata["confidenceThreshold"] = args.confidence_threshold
+    _write_json(artifact_dir / "metadata.json", metadata)
+    write_evaluation_artifacts(artifact_dir, metrics)
+    _write_json(artifact_dir / "dataset-manifest.json", relative_manifest(splits, dataset_root))
+    _write_json(artifact_dir / "class-distribution.json", distribution)
+    _write_json(artifact_dir / "training-history.json", head_history + finetune_history)
+    training_config = {
+        "model": "mobilenet_v3_small",
+        "pretrainedWeights": "ImageNet",
+        "inputSize": [224, 224],
+        "seed": args.seed,
+        "batchSize": args.batch_size,
+        "epochsHead": args.epochs_head,
+        "epochsFinetune": args.epochs_finetune,
+        "headLearningRate": args.head_lr,
+        "finetuneLearningRate": args.finetune_lr,
+        "weightDecay": args.weight_decay,
+        "classImbalance": {
+            "method": "weighted_cross_entropy",
+            "formula": "N / (class_count * number_of_classes)",
+            "weights": {
+                EXPECTED_CLASSES[index]: float(weight) for index, weight in enumerate(weights)
             },
-            indent=2,
-        )
+        },
+        "selectionMetric": "validation_macro_f1",
+        "datasetLayout": detect_layout(dataset_root),
+        "device": str(device),
+    }
+    _write_json(artifact_dir / "training-config.json", training_config)
+    (artifact_dir / "README.md").write_text(
+        "# Model artifact\n\n"
+        f"- Version: `{run_id}`\n"
+        "- Selection: best validation macro F1\n"
+        "- Test metrics: `metrics.json`\n"
+        "- Runtime files: `garbage_classifier.pt`, `metadata.json`\n",
+        encoding="utf-8",
     )
+
+    shutil.copy2(model_path, runtime_dir / "garbage_classifier.pt")
+    shutil.copy2(artifact_dir / "metadata.json", runtime_dir / "metadata.json")
+    for filename in (
+        "metrics.json",
+        "classification-report.json",
+        "confusion-matrix.png",
+        "class-distribution.json",
+    ):
+        shutil.copy2(artifact_dir / filename, results_dir / filename)
+    print(json.dumps(metrics.to_dict(), ensure_ascii=False, indent=2))
+    print(f"artifact={artifact_dir}")
+    print(f"runtime_model={runtime_dir / 'garbage_classifier.pt'}")
 
 
 if __name__ == "__main__":

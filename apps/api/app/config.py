@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from functools import cached_property
+from ipaddress import ip_address
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -37,13 +39,39 @@ class Settings(BaseSettings):
         origins = [origin.strip() for origin in value.split(",") if origin.strip()]
         if not origins:
             raise ValueError("CORS_ORIGINS must contain at least one origin")
+        for origin in origins:
+            if origin == "*":
+                continue
+            parsed = urlsplit(origin)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or not parsed.netloc
+                or parsed.path
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError(f"Invalid CORS origin: {origin!r}")
         return ",".join(origins)
 
     @cached_property
     def cors_origin_list(self) -> list[str]:
         origins = self.cors_origins.split(",")
-        if self.app_env == "production" and "*" in origins:
-            raise ValueError("Wildcard CORS is not allowed in production")
+        if self.app_env == "production":
+            for origin in origins:
+                if origin == "*":
+                    raise ValueError("Wildcard CORS is not allowed in production")
+                parsed = urlsplit(origin)
+                hostname = parsed.hostname or ""
+                is_loopback = hostname.casefold() == "localhost"
+                try:
+                    loopback_ip = ip_address(hostname).is_loopback
+                except ValueError:
+                    loopback_ip = False
+                is_loopback = is_loopback or loopback_ip
+                if is_loopback:
+                    raise ValueError("Loopback CORS origins are not allowed in production")
+                if parsed.scheme != "https":
+                    raise ValueError("Production CORS origins must use HTTPS")
         return origins
 
     def resolve_api_path(self, path: Path) -> Path:

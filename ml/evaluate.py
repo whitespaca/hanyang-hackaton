@@ -35,7 +35,7 @@ def main() -> None:
     metrics = evaluate_loader(
         model, loader, nn.CrossEntropyLoss(), EXPECTED_CLASSES, torch.device("cpu")
     )
-    print(json.dumps(metrics.__dict__, ensure_ascii=False, indent=2))
+    print(json.dumps(metrics.to_dict(), ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

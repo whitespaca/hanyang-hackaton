@@ -42,6 +42,7 @@ async def read_image(upload: UploadFile, max_bytes: int) -> Image.Image:
     except (
         UnidentifiedImageError,
         OSError,
+        SyntaxError,
         ValueError,
         Image.DecompressionBombError,
         Image.DecompressionBombWarning,

@@ -1,12 +1,45 @@
 import { GARBAGE_CLASSES, GARBAGE_LABELS, formatConfidence, type ClassificationPrediction, type GarbageClass, type GuideItem } from "@bunrishot/shared";
-import { useState, type ReactNode } from "react";
-import { Linking, Pressable, ScrollView, StyleSheet, Text, View, type PressableProps } from "react-native";
+import { useEffect, useState, type ReactNode } from "react";
+import { AccessibilityInfo, Animated, Linking, Pressable, ScrollView, StyleSheet, Text, View, type PressableProps } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { theme } from "@/lib/theme";
 
 export function Screen({ children, scroll = true }: { children: ReactNode; scroll?: boolean }) {
-  const content = <View style={styles.content}>{children}</View>;
+  const content = <AnimatedStage><View style={styles.content}>{children}</View></AnimatedStage>;
   return <SafeAreaView edges={["bottom"]} style={styles.safe}>{scroll ? <ScrollView contentContainerStyle={styles.scroll}>{content}</ScrollView> : content}</SafeAreaView>;
+}
+
+function AnimatedStage({ children }: { children: ReactNode }) {
+  const [opacity] = useState(() => new Animated.Value(0));
+  const [translateY] = useState(() => new Animated.Value(8));
+  useEffect(() => {
+    let active = true;
+    let animation: Animated.CompositeAnimation | undefined;
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((reducedMotion) => {
+        if (!active) return;
+        if (reducedMotion) {
+          opacity.setValue(1);
+          translateY.setValue(0);
+          return;
+        }
+        animation = Animated.parallel([
+          Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+          Animated.timing(translateY, { toValue: 0, duration: 200, useNativeDriver: true }),
+        ]);
+        animation.start();
+      })
+      .catch(() => {
+        if (!active) return;
+        opacity.setValue(1);
+        translateY.setValue(0);
+      });
+    return () => {
+      active = false;
+      animation?.stop();
+    };
+  }, [opacity, translateY]);
+  return <Animated.View style={{ flex: 1, opacity, transform: [{ translateY }] }}>{children}</Animated.View>;
 }
 
 interface ButtonProps extends PressableProps { label: string; variant?: "primary" | "secondary" | "danger" }
@@ -33,7 +66,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 }
 
 export function PermissionDenied({ canAskAgain, onRequest, onGallery }: { canAskAgain: boolean; onRequest: () => void; onGallery: () => void }) {
-  return <View style={styles.center}><Text style={styles.title}>카메라 권한이 필요합니다</Text><Text style={styles.body}>{canAskAgain ? "물건을 촬영하려면 카메라 접근을 허용해주세요." : "설정에서 카메라 권한을 허용하거나 갤러리에서 사진을 선택해주세요."}</Text>{canAskAgain ? <ActionButton label="카메라 권한 요청" onPress={onRequest} /> : <ActionButton label="설정 열기" onPress={() => Linking.openSettings()} />}<ActionButton label="갤러리에서 선택" variant="secondary" onPress={onGallery} /></View>;
+  return <View style={styles.center}><Text style={styles.title}>카메라 권한이 필요합니다</Text><Text style={styles.body}>{canAskAgain ? "물건을 촬영하려면 카메라 접근을 허용해주세요." : "설정에서 카메라 권한을 허용해주세요."} 카메라 권한이 없어도 갤러리 사진으로 분석할 수 있습니다.</Text>{canAskAgain ? <ActionButton label="카메라 권한 요청" onPress={onRequest} /> : <ActionButton label="설정 열기" onPress={() => Linking.openSettings()} />}<ActionButton label="갤러리에서 선택" variant="secondary" onPress={onGallery} /></View>;
 }
 
 const styles = StyleSheet.create({

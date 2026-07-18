@@ -72,6 +72,15 @@ def test_rejects_unsupported_corrupt_oversize_and_tiny_images(client: TestClient
     )
     assert corrupt.status_code == 422
 
+    invalid_crc_bytes = bytearray(png_bytes())
+    invalid_crc_bytes[50] ^= 0xFF
+    invalid_crc = client.post(
+        "/api/v1/classifications",
+        files={"image": ("invalid-crc.png", bytes(invalid_crc_bytes), "image/png")},
+    )
+    assert invalid_crc.status_code == 422
+    assert invalid_crc.json()["error"]["code"] == "INVALID_IMAGE"
+
     oversize = client.post(
         "/api/v1/classifications", files={"image": ("x.png", b"0" * 1025, "image/png")}
     )
@@ -135,6 +144,58 @@ def test_model_mode_falls_back_only_outside_production(tmp_path: Path) -> None:
         inference_mode="model",
         database_url=f"sqlite:///{tmp_path / 'prod.db'}",
         guides_path=ROOT_DIR / "data" / "disposal-guides.ko.json",
+        cors_origins="https://web.example.com",
     )
     with pytest.raises((FileNotFoundError, RuntimeError)), TestClient(create_app(production)):
         pass
+
+
+def test_cors_allows_configured_origin_and_denies_other_origin(tmp_path: Path) -> None:
+    settings = Settings(
+        app_env="test",
+        inference_mode="mock",
+        database_url=f"sqlite:///{tmp_path / 'cors.db'}",
+        guides_path=ROOT_DIR / "data" / "disposal-guides.ko.json",
+        cors_origins=" https://one.example.com, https://two.example.com ,,",
+    )
+    with TestClient(create_app(settings)) as cors_client:
+        allowed = cors_client.options(
+            "/api/v1/classifications",
+            headers={
+                "Origin": "https://two.example.com",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "Content-Type,X-Request-ID",
+            },
+        )
+        health = cors_client.get("/api/v1/health", headers={"Origin": "https://one.example.com"})
+        denied = cors_client.get("/api/v1/health", headers={"Origin": "https://denied.example.com"})
+
+    assert settings.cors_origin_list == [
+        "https://one.example.com",
+        "https://two.example.com",
+    ]
+    assert allowed.status_code == 200
+    assert allowed.headers["access-control-allow-origin"] == "https://two.example.com"
+    assert "access-control-allow-credentials" not in allowed.headers
+    assert "POST" in allowed.headers["access-control-allow-methods"]
+    assert health.headers["access-control-allow-origin"] == "https://one.example.com"
+    assert "access-control-allow-origin" not in denied.headers
+
+
+@pytest.mark.parametrize(
+    "origin",
+    ["*", "http://localhost:3000", "http://127.0.0.1:3000", "http://web.example.com"],
+)
+def test_production_rejects_unsafe_cors_origins(origin: str) -> None:
+    settings = Settings(app_env="production", cors_origins=origin)
+    with pytest.raises(ValueError):
+        create_app(settings)
+
+
+@pytest.mark.parametrize(
+    "origin",
+    ["web.example.com", "https://web.example.com/path", "ftp://web.example.com"],
+)
+def test_invalid_cors_origin_syntax_is_rejected(origin: str) -> None:
+    with pytest.raises(ValueError, match="CORS origin"):
+        Settings(cors_origins=origin)

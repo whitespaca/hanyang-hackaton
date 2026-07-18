@@ -1,21 +1,81 @@
 # 분리샷 ML 파이프라인
 
-기본 데이터셋은 [Kaggle Garbage Classification V2](https://www.kaggle.com/datasets/sumn2u/garbage-classification-v2)입니다. 데이터셋 라이선스와 다운로드 조건은 Kaggle 원문을 확인하세요. 이미지·checkpoint·학습 run은 용량과 라이선스 때문에 Git에 넣지 않습니다.
+데이터셋은 [Kaggle Garbage Classification V2](https://www.kaggle.com/datasets/sumn2u/garbage-classification-v2)입니다. Kaggle 원문의 license/download 조건을 확인하세요. dataset, checkpoint, ONNX binary와 training run은 용량·license 때문에 Git에 넣지 않습니다.
 
-## 예상 구조
+## Dataset layout
 
-`data-dir` 바로 아래에 10개 클래스 폴더가 있거나, `train`, `val`(또는 `validation`), `test` 아래에 각각 10개 클래스 폴더가 있어야 합니다. 폴더 이름은 `metal, glass, biological, paper, battery, trash, cardboard, shoes, clothes, plastic`과 정확히 일치해야 합니다.
+대소문자 변형을 허용합니다.
 
-## 설치와 학습
-
-```bash
-cd ml
-uv sync
-uv run python train.py --data-dir C:/absolute/path/to/garbage-classification-v2 --output-dir ../apps/api/models --epochs-head 4 --epochs-finetune 3 --batch-size 32 --seed 42 --check-corrupt
+```text
+root/train/<class>
+root/validation/<class>
+root/test/<class>
 ```
 
-CUDA가 있으면 GPU를, 없으면 CPU를 사용합니다. CPU 학습은 수 시간 이상 걸릴 수 있습니다. 결과는 state dict, metadata, metrics JSON이며 실제 수치는 `metrics.json`을 생성한 뒤에만 발표 자료에 사용하세요.
+또는 단일 root:
 
-데이터 없이 모델 생성/한 배치 forward와 metadata 계약만 확인하려면 `uv run pytest tests/test_smoke.py`를 실행합니다. smoke test는 `weights=None`을 사용하므로 ImageNet 사전학습 weight나 네트워크가 필요하지 않습니다. 실제 학습의 최초 실행에서만 pretrained weight 다운로드가 필요합니다.
+```text
+root/Metal
+root/Glass
+...
+root/Plastic
+```
 
-API predictor까지 포함한 artifact round-trip은 루트에서 `pnpm test:model`로 검증합니다. 이 검사는 임시 state dict를 만들고 `TorchPredictor`가 metadata 클래스 순서, 입력 전처리와 Top 3를 정상 처리하는지 확인합니다.
+단일 root는 seed 42 기준 stratified 80/10/10으로 나눕니다. 누락·빈 class·예상 밖 class·중복 normalization은 오류이며 manifest에는 dataset root 기준 상대경로만 씁니다.
+
+Kaggle credential이 이미 구성되지 않았다면 자동 다운로드하지 않습니다. dataset 경로는 `--data-dir`이 `GARBAGE_DATASET_DIR`보다 우선합니다.
+
+## Preflight
+
+```powershell
+cd ml
+uv sync
+uv run python preflight.py --data-dir C:/absolute/path/to/garbage-classification-v2 --check-corrupt
+```
+
+layout, 실제 class/split count, corrupt 상대경로, duplicate hash 경고와 재현 manifest를 JSON으로 출력합니다. `--manifest-out`으로 파일을 저장할 수 있습니다.
+
+## Training
+
+```powershell
+uv run python train.py `
+  --data-dir C:/absolute/path/to/garbage-classification-v2 `
+  --output-dir ../apps/api/models `
+  --epochs-head 4 `
+  --epochs-finetune 3 `
+  --batch-size 32 `
+  --seed 42 `
+  --check-corrupt
+```
+
+- MobileNetV3 Small + ImageNet weights
+- head 4 epochs, 마지막 feature blocks 일부 fine-tune 3 epochs
+- AdamW, weighted cross entropy 하나만 사용
+- best validation Macro F1 checkpoint
+- test loss/accuracy/Macro F1/Weighted F1/Top-3/low-confidence/per-class/confusion matrix
+- train augmentation과 deterministic evaluation transform 분리
+- API/evaluation: Resize(256), CenterCrop(224), ImageNet normalization
+
+GPU가 있으면 CUDA, 없으면 CPU를 사용합니다. CPU 학습은 수 시간 이상 걸릴 수 있고 첫 실제 학습은 pretrained weight 다운로드가 필요합니다.
+
+산출물은 `artifacts/model/<run-id>/`에 versioned 보존하고 runtime `.pt`/metadata를 `apps/api/models/`에 복사합니다. 실제 평가 결과만 `docs/model-results/`에 복사합니다.
+
+## Smoke/model contract
+
+```powershell
+uv run pytest
+cd ..
+pnpm test:model
+pnpm test:model:actual
+```
+
+기본 smoke는 `weights=None`이므로 dataset이나 pretrained download가 필요 없습니다. `test:model`은 temporary artifact, `test:model:actual`은 실제 artifact를 검사하며 없으면 `SKIP`합니다.
+
+## ONNX optional review
+
+```powershell
+uv sync --extra onnx
+uv run pytest tests/test_onnx.py
+```
+
+실제 명령은 [ONNX 평가 문서](../docs/onnx-evaluation.md)를 참고하세요. ONNX는 현재 API runtime이 아니며 실제 benchmark 전에는 성능 우위를 주장하지 않습니다.
