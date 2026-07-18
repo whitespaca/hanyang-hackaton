@@ -1,6 +1,6 @@
 # 분리샷
 
-[![CI](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml/badge.svg)](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml) 
+[![CI](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml/badge.svg)](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml)
 
 사진 한 장으로 10개 쓰레기 대분류의 AI Top 3를 확인하고, 사용자가 결과를 확인·수정한 뒤 한국형 분리배출 체크리스트를 받는 멀티플랫폼 서비스입니다.
 
