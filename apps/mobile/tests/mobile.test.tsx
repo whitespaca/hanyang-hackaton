@@ -9,7 +9,7 @@ import {
 import { inspectApiBaseUrl } from "@/lib/apiConfig";
 import {
   calculateResizeDimensions,
-  createNativeImageUploadPart,
+  validateUploadFile,
 } from "@/lib/imageProcessing";
 import { getPermissionUiState } from "@/lib/permissions";
 
@@ -70,24 +70,30 @@ describe("mobile P0", () => {
       width: 640,
       height: 480,
     });
+    expect(() => calculateResizeDimensions(0, 480)).toThrow(
+      "이미지 크기는 0보다 커야 합니다.",
+    );
   });
 
-  it("creates a React Native multipart file without reading it into a Blob", () => {
-    expect(createNativeImageUploadPart("file:///cache/upload.jpg")).toEqual({
-      uri: "file:///cache/upload.jpg",
-      name: "upload.jpg",
-      type: "image/jpeg",
-    });
+  it("accepts an existing non-empty compressed image", () => {
+    expect(() =>
+      validateUploadFile({ exists: true, size: 1024 }),
+    ).not.toThrow();
   });
 
-  it("rejects an empty compressed image path", () => {
-    expect(() => createNativeImageUploadPart("  ")).toThrow(
-      "압축한 이미지 경로가 비어 있습니다.",
+  it("rejects a missing or empty compressed image", () => {
+    expect(() => validateUploadFile({ exists: false, size: 0 })).toThrow(
+      "압축한 이미지 파일이 존재하지 않습니다.",
+    );
+    expect(() => validateUploadFile({ exists: true, size: 0 })).toThrow(
+      "압축한 이미지 파일이 비어 있습니다.",
     );
   });
 
   it("warns about device loopback but allows the Android emulator host", () => {
-    expect(inspectApiBaseUrl("http://localhost:8000").warning).toMatch(/LAN IP/);
+    expect(inspectApiBaseUrl("http://localhost:8000").warning).toMatch(
+      /LAN IP/,
+    );
     expect(inspectApiBaseUrl("http://10.0.2.2:8000").warning).toBeUndefined();
     expect(inspectApiBaseUrl("not-a-url").isValid).toBe(false);
   });
@@ -97,14 +103,14 @@ describe("mobile P0", () => {
     expect(getPermissionUiState({ status: "granted", granted: true })).toBe(
       "granted",
     );
-    expect(
-      getPermissionUiState({ status: "denied", canAskAgain: true }),
-    ).toBe("denied");
-    expect(
-      getPermissionUiState({ status: "denied", canAskAgain: false }),
-    ).toBe("restricted");
-    expect(
-      getPermissionUiState({ status: "denied", available: false }),
-    ).toBe("unavailable");
+    expect(getPermissionUiState({ status: "denied", canAskAgain: true })).toBe(
+      "denied",
+    );
+    expect(getPermissionUiState({ status: "denied", canAskAgain: false })).toBe(
+      "restricted",
+    );
+    expect(getPermissionUiState({ status: "denied", available: false })).toBe(
+      "unavailable",
+    );
   });
 });

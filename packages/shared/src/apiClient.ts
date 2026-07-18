@@ -26,11 +26,15 @@ export class ApiClientError extends Error {
     readonly status: number,
     readonly requestId?: string,
     readonly details?: unknown,
+    cause?: unknown,
   ) {
     super(message);
     this.name = "ApiClientError";
+    if (cause !== undefined) this.cause = cause;
   }
 }
+
+export type FetchImplementation = typeof globalThis.fetch;
 
 export interface ClassifyInput {
   image: Blob;
@@ -48,18 +52,29 @@ export interface GarbageApiClient {
   getStatistics(): Promise<StatisticsResponse>;
 }
 
-export function createApiClient(baseUrl: string, timeoutMs = 10_000): GarbageApiClient {
+export function createApiClient(
+  baseUrl: string,
+  timeoutMs = 10_000,
+  fetchImplementation: FetchImplementation = globalThis.fetch,
+): GarbageApiClient {
   const normalizedBaseUrl = baseUrl.replace(/\/$/, "");
 
-  async function request<T>(path: string, schema: ZodType<T>, init?: RequestInit): Promise<T> {
+  async function request<T>(
+    path: string,
+    schema: ZodType<T>,
+    init?: RequestInit,
+  ): Promise<T> {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
     try {
-      const response = await fetch(`${normalizedBaseUrl}${path}`, {
-        ...init,
-        headers: { Accept: "application/json", ...init?.headers },
-        signal: controller.signal,
-      });
+      const response = await fetchImplementation(
+        `${normalizedBaseUrl}${path}`,
+        {
+          ...init,
+          headers: { Accept: "application/json", ...init?.headers },
+          signal: controller.signal,
+        },
+      );
       const requestId = response.headers.get("X-Request-ID") ?? undefined;
       const body: unknown = await response.json().catch(() => null);
       if (!response.ok) {
@@ -73,19 +88,44 @@ export function createApiClient(baseUrl: string, timeoutMs = 10_000): GarbageApi
             parsed.data.error.details,
           );
         }
-        throw new ApiClientError("서버 응답을 처리할 수 없습니다.", "INVALID_RESPONSE", response.status, requestId);
+        throw new ApiClientError(
+          "서버 응답을 처리할 수 없습니다.",
+          "INVALID_RESPONSE",
+          response.status,
+          requestId,
+        );
       }
       const parsed = schema.safeParse(body);
       if (!parsed.success) {
-        throw new ApiClientError("서버 응답 형식이 올바르지 않습니다.", "INVALID_RESPONSE", response.status, requestId, parsed.error.flatten());
+        throw new ApiClientError(
+          "서버 응답 형식이 올바르지 않습니다.",
+          "INVALID_RESPONSE",
+          response.status,
+          requestId,
+          parsed.error.flatten(),
+        );
       }
       return parsed.data;
     } catch (error) {
       if (error instanceof ApiClientError) throw error;
       if (error instanceof Error && error.name === "AbortError") {
-        throw new ApiClientError("서버 응답 시간이 초과되었습니다. 다시 시도해주세요.", "TIMEOUT", 0);
+        throw new ApiClientError(
+          "서버 응답 시간이 초과되었습니다. 다시 시도해주세요.",
+          "TIMEOUT",
+          0,
+          undefined,
+          undefined,
+          error,
+        );
       }
-      throw new ApiClientError("서버에 연결할 수 없습니다. 네트워크와 API 주소를 확인해주세요.", "NETWORK_ERROR", 0);
+      throw new ApiClientError(
+        "서버에 연결할 수 없습니다. 네트워크와 API 주소를 확인해주세요.",
+        "NETWORK_ERROR",
+        0,
+        undefined,
+        undefined,
+        error,
+      );
     } finally {
       clearTimeout(timer);
     }
@@ -97,16 +137,30 @@ export function createApiClient(baseUrl: string, timeoutMs = 10_000): GarbageApi
       const form = new FormData();
       form.append("image", image, fileName);
       form.append("client", client);
-      return request("/api/v1/classifications", classificationResponseSchema, { method: "POST", body: form });
+      return request("/api/v1/classifications", classificationResponseSchema, {
+        method: "POST",
+        body: form,
+      });
     },
     listGuides: () => request("/api/v1/guides", guidesResponseSchema),
-    getCategory: (category) => request(`/api/v1/guides/${category}`, guideCategorySchema),
-    getGuide: (category, subcategory) => request(`/api/v1/guides/${category}/${encodeURIComponent(subcategory)}`, guideItemSchema),
-    submitFeedback: ({ classificationId, ...body }) => request(
-      `/api/v1/classifications/${classificationId}/feedback`,
-      feedbackResponseSchema,
-      { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) },
-    ),
-    getStatistics: () => request("/api/v1/statistics/summary", statisticsResponseSchema),
+    getCategory: (category) =>
+      request(`/api/v1/guides/${category}`, guideCategorySchema),
+    getGuide: (category, subcategory) =>
+      request(
+        `/api/v1/guides/${category}/${encodeURIComponent(subcategory)}`,
+        guideItemSchema,
+      ),
+    submitFeedback: ({ classificationId, ...body }) =>
+      request(
+        `/api/v1/classifications/${classificationId}/feedback`,
+        feedbackResponseSchema,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        },
+      ),
+    getStatistics: () =>
+      request("/api/v1/statistics/summary", statisticsResponseSchema),
   };
 }

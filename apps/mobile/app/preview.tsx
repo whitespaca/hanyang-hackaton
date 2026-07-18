@@ -1,14 +1,16 @@
 import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
+import { File } from "expo-file-system";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Image, StyleSheet, Text } from "react-native";
 
 import { ActionButton, ErrorState, Screen } from "@/components/ui";
 import { useFlow } from "@/features/classification/FlowContext";
-import { classifyImageUri } from "@/lib/api";
+import { apiClient, apiConfiguration } from "@/lib/api";
 import {
   calculateResizeDimensions,
   UPLOAD_JPEG_QUALITY,
+  validateUploadFile,
 } from "@/lib/imageProcessing";
 import { theme } from "@/lib/theme";
 
@@ -58,10 +60,16 @@ export default function PreviewScreen() {
         format: SaveFormat.JPEG,
       });
 
+      stage = "로컬 파일 확인";
+      const uploadFile = new File(compressed.uri);
+      validateUploadFile(uploadFile);
+
       if (__DEV__) {
         console.info("[image-upload] compressed image ready", {
           width: compressed.width,
           height: compressed.height,
+          size: uploadFile.size,
+          type: uploadFile.type || "image/jpeg",
           scheme: compressed.uri.split(":", 1)[0],
         });
       }
@@ -77,7 +85,11 @@ export default function PreviewScreen() {
       });
 
       stage = "API 업로드";
-      const result = await classifyImageUri(compressed.uri);
+      const result = await apiClient.classify({
+        image: uploadFile,
+        fileName: "upload.jpg",
+        client: "mobile",
+      });
 
       dispatch({ type: "result", result });
       router.replace("/result");
@@ -87,8 +99,21 @@ export default function PreviewScreen() {
           stage,
           error:
             caught instanceof Error
-              ? { name: caught.name, message: caught.message }
+              ? {
+                  name: caught.name,
+                  message: caught.message,
+                  cause:
+                    caught.cause instanceof Error
+                      ? {
+                          name: caught.cause.name,
+                          message: caught.cause.message,
+                        }
+                      : typeof caught.cause === "string"
+                        ? caught.cause
+                        : undefined,
+                }
               : caught,
+          apiBaseUrl: apiConfiguration.baseUrl,
         });
       }
 
@@ -112,7 +137,8 @@ export default function PreviewScreen() {
       />
       <Text style={styles.title}>이 사진을 분석할까요?</Text>
       <Text style={styles.body}>
-        긴 변을 최대 1280px로 줄인 복사본만 API에 전송하며 원본은 저장하지 않습니다.
+        긴 변을 최대 1280px로 줄인 복사본만 API에 전송하며 원본은 저장하지
+        않습니다.
       </Text>
       {error && <ErrorState message={error} onRetry={analyze} />}
       <ActionButton
