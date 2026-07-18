@@ -72,29 +72,36 @@ describe("mobile P0", () => {
     });
   });
 
-  it("reads a local file response even when its status is zero", async () => {
-    const blob = { size: 256, type: "image/jpeg" } as Blob;
-    const readBlob = jest.fn().mockResolvedValue(blob);
+  it("reads local image bytes without using Response.blob", async () => {
+    const readBytes = jest
+      .fn()
+      .mockResolvedValue(new Uint8Array([0xff, 0xd8, 0xff, 0xd9]));
+    const readBlob = jest.fn(() => {
+      throw new Error("Response.blob must not be called");
+    });
     const fetchImplementation = jest.fn().mockResolvedValue({
       ok: false,
       status: 0,
+      bytes: readBytes,
       blob: readBlob,
     } as unknown as Response);
 
-    await expect(
-      readLocalImageBlob(
-        "file:///cache/upload.jpg",
-        fetchImplementation as unknown as typeof fetch,
-      ),
-    ).resolves.toBe(blob);
-    expect(readBlob).toHaveBeenCalledTimes(1);
+    const blob = await readLocalImageBlob(
+      "file:///cache/upload.jpg",
+      fetchImplementation as unknown as typeof fetch,
+    );
+
+    expect(blob.size).toBe(4);
+    expect(blob.type).toBe("image/jpeg");
+    expect(readBytes).toHaveBeenCalledTimes(1);
+    expect(readBlob).not.toHaveBeenCalled();
   });
 
   it("rejects an empty compressed image", async () => {
     const fetchImplementation = jest.fn().mockResolvedValue({
       ok: false,
       status: 0,
-      blob: jest.fn().mockResolvedValue({ size: 0, type: "image/jpeg" }),
+      bytes: jest.fn().mockResolvedValue(new Uint8Array()),
     } as unknown as Response);
 
     await expect(
@@ -103,6 +110,20 @@ describe("mobile P0", () => {
         fetchImplementation as unknown as typeof fetch,
       ),
     ).rejects.toThrow("압축한 이미지가 비어 있습니다.");
+  });
+
+  it("reports runtimes that do not expose Response.bytes", async () => {
+    const fetchImplementation = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 0,
+    } as unknown as Response);
+
+    await expect(
+      readLocalImageBlob(
+        "file:///cache/upload.jpg",
+        fetchImplementation as unknown as typeof fetch,
+      ),
+    ).rejects.toThrow("이미지 바이트 읽기를 지원하지 않습니다.");
   });
 
   it("warns about device loopback but allows the Android emulator host", () => {
