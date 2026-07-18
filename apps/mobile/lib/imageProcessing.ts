@@ -6,7 +6,11 @@ export interface ImageDimensions {
   height: number;
 }
 
-export type FetchImplementation = typeof fetch;
+export interface NativeImageUploadPart {
+  uri: string;
+  name: string;
+  type: "image/jpeg";
+}
 
 export function calculateResizeDimensions(
   width: number,
@@ -25,16 +29,13 @@ export function calculateResizeDimensions(
   };
 }
 
-export async function readLocalImageBlob(
+export function createNativeImageUploadPart(
   uri: string,
-  fetchImplementation: FetchImplementation = fetch,
-): Promise<Blob> {
-  const response = await fetchImplementation(uri);
-  const blob = await response.blob();
-
-  if (blob.size <= 0) {
-    throw new Error("압축한 이미지가 비어 있습니다.");
+  name = "upload.jpg",
+): NativeImageUploadPart {
+  if (!uri.trim()) {
+    throw new Error("압축한 이미지 경로가 비어 있습니다.");
   }
 
-  return blob;
+  return { uri, name, type: "image/jpeg" };
 }

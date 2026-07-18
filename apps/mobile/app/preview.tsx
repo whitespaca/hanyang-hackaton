@@ -5,10 +5,9 @@ import { Image, StyleSheet, Text } from "react-native";
 
 import { ActionButton, ErrorState, Screen } from "@/components/ui";
 import { useFlow } from "@/features/classification/FlowContext";
-import { apiClient } from "@/lib/api";
+import { classifyImageUri } from "@/lib/api";
 import {
   calculateResizeDimensions,
-  readLocalImageBlob,
   UPLOAD_JPEG_QUALITY,
 } from "@/lib/imageProcessing";
 import { theme } from "@/lib/theme";
@@ -59,15 +58,11 @@ export default function PreviewScreen() {
         format: SaveFormat.JPEG,
       });
 
-      stage = "로컬 파일 읽기";
-      const blob = await readLocalImageBlob(compressed.uri);
-
       if (__DEV__) {
         console.info("[image-upload] compressed image ready", {
           width: compressed.width,
           height: compressed.height,
-          size: blob.size,
-          type: blob.type,
+          scheme: compressed.uri.split(":", 1)[0],
         });
       }
 
@@ -82,11 +77,7 @@ export default function PreviewScreen() {
       });
 
       stage = "API 업로드";
-      const result = await apiClient.classify({
-        image: blob,
-        fileName: "upload.jpg",
-        client: "mobile",
-      });
+      const result = await classifyImageUri(compressed.uri);
 
       dispatch({ type: "result", result });
       router.replace("/result");

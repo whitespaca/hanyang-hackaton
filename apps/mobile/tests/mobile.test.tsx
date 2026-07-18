@@ -9,7 +9,7 @@ import {
 import { inspectApiBaseUrl } from "@/lib/apiConfig";
 import {
   calculateResizeDimensions,
-  readLocalImageBlob,
+  createNativeImageUploadPart,
 } from "@/lib/imageProcessing";
 import { getPermissionUiState } from "@/lib/permissions";
 
@@ -72,37 +72,18 @@ describe("mobile P0", () => {
     });
   });
 
-  it("reads a local file response even when its status is zero", async () => {
-    const blob = { size: 256, type: "image/jpeg" } as Blob;
-    const readBlob = jest.fn().mockResolvedValue(blob);
-    const fetchImplementation = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 0,
-      blob: readBlob,
-    } as unknown as Response);
-
-    await expect(
-      readLocalImageBlob(
-        "file:///cache/upload.jpg",
-        fetchImplementation as unknown as typeof fetch,
-      ),
-    ).resolves.toBe(blob);
-    expect(readBlob).toHaveBeenCalledTimes(1);
+  it("creates a React Native multipart file without reading it into a Blob", () => {
+    expect(createNativeImageUploadPart("file:///cache/upload.jpg")).toEqual({
+      uri: "file:///cache/upload.jpg",
+      name: "upload.jpg",
+      type: "image/jpeg",
+    });
   });
 
-  it("rejects an empty compressed image", async () => {
-    const fetchImplementation = jest.fn().mockResolvedValue({
-      ok: false,
-      status: 0,
-      blob: jest.fn().mockResolvedValue({ size: 0, type: "image/jpeg" }),
-    } as unknown as Response);
-
-    await expect(
-      readLocalImageBlob(
-        "file:///cache/empty.jpg",
-        fetchImplementation as unknown as typeof fetch,
-      ),
-    ).rejects.toThrow("압축한 이미지가 비어 있습니다.");
+  it("rejects an empty compressed image path", () => {
+    expect(() => createNativeImageUploadPart("  ")).toThrow(
+      "압축한 이미지 경로가 비어 있습니다.",
+    );
   });
 
   it("warns about device loopback but allows the Android emulator host", () => {
