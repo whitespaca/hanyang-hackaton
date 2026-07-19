@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiErrorState, GuideChecklist } from "@/components/classification";
 import { apiClient } from "@/lib/api";
+import { CollectionSpotCta } from "@/components/spots/CollectionSpotCta";
 
 export default function ItemDetailPage() {
   const { itemId } = useParams<{ itemId: string }>();
@@ -19,5 +20,5 @@ export default function ItemDetailPage() {
     }).catch((caught: unknown) => { if (active) setError(caught instanceof Error ? caught.message : "품목 가이드를 불러오지 못했습니다."); });
     return () => { active = false; };
   }, [itemId, attempt]);
-  return <main className="section container">{error ? <ApiErrorState message={error} onRetry={() => { setError(""); setAttempt((value) => value + 1); }} /> : item ? <div className="card" style={{ padding: 28 }}><GuideChecklist guide={item} /></div> : <p role="status">가이드를 불러오는 중입니다…</p>}</main>;
+  return <main className="section container">{error ? <ApiErrorState message={error} onRetry={() => { setError(""); setAttempt((value) => value + 1); }} /> : item ? <div className="card" style={{ padding: 28 }}><GuideChecklist guide={item} /><CollectionSpotCta item={item} /></div> : <p role="status">가이드를 불러오는 중입니다…</p>}</main>;
 }

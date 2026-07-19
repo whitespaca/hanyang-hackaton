@@ -29,6 +29,8 @@ const databasePath = path.join(
 const childEnvironment = {
   ...process.env,
   NEXT_PUBLIC_API_BASE_URL: apiBaseUrl,
+  // Keep CI deterministic even when a developer has a real key in .env.local.
+  NEXT_PUBLIC_KAKAO_MAP_APP_KEY: "",
   PLAYWRIGHT_WEB_PORT: String(webPort),
   MODEL_E2E: modelMode ? "1" : "0",
 };

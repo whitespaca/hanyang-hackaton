@@ -36,9 +36,10 @@ Web build:
 
 ```dotenv
 NEXT_PUBLIC_API_BASE_URL=https://actual-api.example
+NEXT_PUBLIC_KAKAO_MAP_APP_KEY=your_kakao_javascript_key
 ```
 
-`NEXT_PUBLIC_API_BASE_URL`은 browser bundle에 build-time으로 포함되므로 URL 변경 뒤 Web image를 다시 build합니다.
+두 `NEXT_PUBLIC_` 값은 browser bundle에 build-time으로 포함되므로 변경 뒤 Web image를 다시 build합니다. Kakao 지도에는 Admin/REST key가 아닌 JavaScript key를 사용하고 Kakao Developers 앱에 실제 HTTPS Web domain을 등록합니다. 키 또는 domain 설정이 없으면 지도 없이 장소 목록과 외부 링크가 동작하는 것이 정상입니다.
 
 ## 모델 전달
 

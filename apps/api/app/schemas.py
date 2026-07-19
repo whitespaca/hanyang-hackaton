@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
+from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 from app.domain import GARBAGE_CLASSES, GarbageClass
 
@@ -57,6 +58,34 @@ class DisposalSource(ApiModel):
     checked_at: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
 
 
+class CollectionSpotType(StrEnum):
+    BATTERY_BOX = "battery-box"
+    BULKY_WASTE = "bulky-waste"
+    CLOTHES_BIN = "clothes-bin"
+    CUP_BIN = "cup-bin"
+    DONATION_CENTER = "donation-center"
+    FOOD_WASTE_BIN = "food-waste-bin"
+    GENERAL_WASTE = "general-waste"
+    GLASS_BIN = "glass-bin"
+    HAZARDOUS_WASTE = "hazardous-waste"
+    HEALTH_CENTER = "health-center"
+    LAMP_BOX = "lamp-box"
+    MANUFACTURER_TAKEBACK = "manufacturer-takeback"
+    MEDICINE_BOX = "medicine-box"
+    NON_COMBUSTIBLE_WASTE = "non-combustible-waste"
+    PAPER_BIN = "paper-bin"
+    PAPER_CUP_BIN = "paper-cup-bin"
+    PAPER_PACK_BIN = "paper-pack-bin"
+    PET_BOTTLE_BIN = "pet-bottle-bin"
+    PLASTIC_BIN = "plastic-bin"
+    RECYCLING_STATION = "recycling-station"
+    REUSE_BOX = "reuse-box"
+    SMALL_ELECTRONICS = "small-electronics"
+    STYROFOAM_BIN = "styrofoam-bin"
+    TEXTILE_COLLECTION = "textile-collection"
+    VINYL_BIN = "vinyl-bin"
+
+
 class DisposalItem(ApiModel):
     id: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
     name_ko: str = Field(min_length=1)
@@ -70,7 +99,7 @@ class DisposalItem(ApiModel):
     steps: list[str] = Field(min_length=2)
     warnings: list[str] = Field(min_length=1)
     reasons: list[DisposalReason] = Field(min_length=1)
-    spot_types: list[str]
+    spot_types: list[CollectionSpotType] = Field(min_length=1)
     regional_note: str = Field(min_length=1)
     source: DisposalSource
     popular: bool
@@ -98,6 +127,86 @@ class ItemSearchResponse(ApiModel):
     query: str
     results: list[ItemSummary]
     suggestions: list[ItemSummary]
+
+
+class CollectionSpotSource(ApiModel):
+    name: str = Field(min_length=1)
+    url: HttpUrl | None = None
+    checked_at: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+
+    @field_validator("name")
+    @classmethod
+    def validate_source_name(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("source name must not be blank")
+        return value
+
+    @field_validator("checked_at")
+    @classmethod
+    def validate_checked_at(cls, value: str) -> str:
+        date.fromisoformat(value)
+        return value
+
+
+class CollectionSpot(ApiModel):
+    id: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    name_ko: str = Field(min_length=1)
+    spot_types: list[CollectionSpotType] = Field(min_length=1)
+    address: str = Field(min_length=1)
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    organization: str | None = None
+    phone: str | None = None
+    operating_hours: str | None = None
+    note: str | None = None
+    source: CollectionSpotSource
+
+    @field_validator("name_ko", "address")
+    @classmethod
+    def validate_required_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("spot text must not be blank")
+        return value
+
+    @field_validator("spot_types")
+    @classmethod
+    def validate_unique_spot_types(
+        cls, value: list[CollectionSpotType]
+    ) -> list[CollectionSpotType]:
+        if len(value) != len(set(value)):
+            raise ValueError("spotTypes must not contain duplicates")
+        return value
+
+
+class CollectionSpotWithDistance(CollectionSpot):
+    distance_km: float = Field(ge=0)
+
+
+class CollectionSpotsResponse(ApiModel):
+    version: str
+    locale: str
+    region_label: str
+    data_mode: Literal["fixture", "live"]
+    disclaimer: str
+    last_updated: str
+    spots: list[CollectionSpot]
+
+
+class NearbySpotsRequest(ApiModel):
+    latitude: float = Field(ge=-90, le=90)
+    longitude: float = Field(ge=-180, le=180)
+    spot_types: list[CollectionSpotType] | None = Field(default=None, min_length=1)
+    limit: int = Field(default=20, ge=1, le=50)
+    radius_km: float = Field(default=10, gt=0, le=50)
+
+
+class NearbySpotsResponse(ApiModel):
+    version: str
+    region_label: str
+    data_mode: Literal["fixture", "live"]
+    disclaimer: str
+    last_updated: str
+    spots: list[CollectionSpotWithDistance]
 
 
 class GuideItem(DisposalItem):

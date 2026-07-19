@@ -23,8 +23,9 @@
     "smoke:deployment": "node scripts/smoke-deployment.mjs",
     "build": "turbo build",
     "format": "prettier --write .",
-    "check": "pnpm validate:guides && pnpm lint && pnpm typecheck && pnpm test",
-    "validate:guides": "node scripts/validate-guides.mjs"
+    "check": "pnpm validate:guides && pnpm validate:spots && pnpm lint && pnpm typecheck && pnpm test",
+    "validate:guides": "node scripts/validate-guides.mjs",
+    "validate:spots": "node scripts/validate-spots.mjs"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

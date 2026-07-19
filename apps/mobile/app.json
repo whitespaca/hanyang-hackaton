@@ -9,7 +9,8 @@
     "plugins": [
       "expo-router",
       ["expo-camera", { "cameraPermission": "쓰레기 사진을 촬영하기 위해 카메라 접근이 필요합니다." }],
-      ["expo-image-picker", { "photosPermission": "분석할 쓰레기 사진을 선택하기 위해 사진 접근이 필요합니다." }]
+      ["expo-image-picker", { "photosPermission": "분석할 쓰레기 사진을 선택하기 위해 사진 접근이 필요합니다." }],
+      ["expo-location", { "locationWhenInUsePermission": "가까운 분리배출 수거 장소를 거리순으로 안내하기 위해 현재 위치가 필요합니다." }]
     ],
     "experiments": { "typedRoutes": true },
     "android": { "package": "com.bunrishot.app" },
