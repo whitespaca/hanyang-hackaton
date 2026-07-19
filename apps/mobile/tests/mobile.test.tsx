@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react-native";
 
-import { ErrorState, PermissionDenied, PredictionList } from "@/components/ui";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ErrorState, GuideChecklist, PermissionDenied, PredictionList } from "@/components/ui";
 import {
   HISTORY_LIMIT,
   limitHistory,
@@ -12,6 +13,7 @@ import {
   validateUploadFile,
 } from "@/lib/imageProcessing";
 import { getPermissionUiState } from "@/lib/permissions";
+import { addRecentSearch, clearRecentSearches, deleteRecentSearch, loadRecentSearches, RECENT_SEARCH_STORAGE_KEY } from "@/features/search/recentSearches";
 
 describe("mobile P0", () => {
   it("keeps only the latest 20 history items", () => {
@@ -112,5 +114,23 @@ describe("mobile P0", () => {
     expect(getPermissionUiState({ status: "denied", available: false })).toBe(
       "unavailable",
     );
+  });
+
+  it("deduplicates, deletes, and clears recent item searches", async () => {
+    await AsyncStorage.clear();
+    await addRecentSearch({ itemId: "power-bank", query: "보조", nameKo: "보조배터리", searchedAt: "2026-07-19T00:00:00.000Z" });
+    await addRecentSearch({ itemId: "power-bank", query: "휴대용 배터리", nameKo: "보조배터리", searchedAt: "2026-07-19T01:00:00.000Z" });
+    expect(await loadRecentSearches()).toHaveLength(1);
+    expect(JSON.parse((await AsyncStorage.getItem(RECENT_SEARCH_STORAGE_KEY)) ?? "[]")[0].query).toBe("휴대용 배터리");
+    expect(await deleteRecentSearch("power-bank")).toEqual([]);
+    await addRecentSearch({ itemId: "power-bank", query: "보조", nameKo: "보조배터리", searchedAt: "2026-07-19T00:00:00.000Z" });
+    expect(await clearRecentSearches()).toEqual([]);
+  });
+
+  it("renders disposal reasons and source from the shared detail contract", () => {
+    render(<GuideChecklist guide={{ id: "power-bank", nameKo: "보조배터리", aliases: ["휴대용 배터리"], keywords: ["충전"], classificationCategory: "battery", group: "battery", groupLabel: "배터리", recyclability: "special", summary: "전용 수거처를 확인합니다.", steps: ["전원을 끕니다.", "단자를 절연합니다."], warnings: ["손상 제품은 충전하지 마세요."], reasons: [{ title: "단자를 막는 이유", explanation: "단락을 예방합니다." }], spotTypes: ["battery-box"], regionalNote: "지역 기준을 확인하세요.", source: { name: "공식 안내", url: null, checkedAt: "2026-07-19" }, popular: true }} />);
+    expect(screen.getByText("왜 이렇게 버려야 하나요?")).toBeTruthy();
+    expect(screen.getByText("단락을 예방합니다.")).toBeTruthy();
+    expect(screen.getByText("공식 안내")).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml/badge.svg)](https://github.com/whitespaca/hanyang-hackaton/actions/workflows/ci.yml)
 
-사진 한 장으로 10개 쓰레기 대분류의 AI Top 3를 확인하고, 사용자가 결과를 확인·수정한 뒤 한국형 분리배출 체크리스트를 받는 멀티플랫폼 서비스입니다.
+물건 이름을 검색하거나 사진으로 10개 쓰레기 대분류의 AI Top 3를 확인하고, 사용자가 결과를 확인·수정한 뒤 한국형 분리배출 체크리스트를 받는 멀티플랫폼 서비스입니다.
 
 ```text
 Next.js Web ─┐
@@ -18,7 +18,7 @@ AI 결과는 배출 방법을 자동 확정하지 않습니다. 모든 흐름에
 - P0 mock 데모: 동작
 - 실제 모델: `gcv2-mobilenetv3s-20260718-1529`, 로컬 model mode/API/Web smoke 통과
 - 실제 test set: 1,227장, Accuracy 90.87%, Macro F1 90.37%, Top-3 Accuracy 98.21%
-- Playwright: 실제 FastAPI mock 서버를 사용하는 8개 E2E + 실제 모델 optional E2E 1개
+- Playwright: 실제 FastAPI mock 서버를 사용하는 12개 E2E(기존 AI 8개 + 품목 검색 4개) + 실제 모델 optional E2E 1개
 - 기기 QA: **AUTOMATION READY, MANUAL DEVICE QA REQUIRED**
 - 배포: **DEPLOYMENT READY, NOT DEPLOYED**
 - ONNX: 실제 모델·실제 fixture 3장 parity 통과, runtime 전환은 보류
@@ -28,8 +28,9 @@ AI 결과는 배출 방법을 자동 확정하지 않습니다. 모든 흐름에
 ## 주요 기능
 
 - Web: 반응형 랜딩, drag-and-drop 업로드, Top 3/confidence, 저신뢰도·오류·재시도, 사용자 수정, 가이드, 통계, 모델 설명
-- Mobile: 카메라/갤러리, 긴 변 1280px JPEG 압축, LAN API 진단, 결과 수정, 가이드, 최대 20개 로컬 기록
-- API: request ID, JPEG/PNG/WebP와 8 MiB 검증, Pillow decode·decompression bomb 방어, mock/model 정책, SQLite, exact-origin CORS
+- Web: 48개 품목 검색, 자동완성·오타 제안, 상세 체크리스트, 브라우저 로컬 최근 검색
+- Mobile: 품목 검색·상세·별도 최근 검색, 카메라/갤러리, 긴 변 1280px JPEG 압축, LAN API 진단, 결과 수정, 최대 20개 AI 기록
+- API: 품목 catalog/search/detail, request ID, JPEG/PNG/WebP와 8 MiB 검증, Pillow decode·decompression bomb 방어, mock/model 정책, SQLite, exact-origin CORS
 - ML: case-insensitive dataset preflight, 재현 가능한 80/10/10 split, MobileNetV3 Small 2단계 학습, weighted cross entropy, 실제 평가 artifact 계약
 - QA/운영: GitHub Actions, Docker compose, 배포 smoke, EAS preview profile, Playwright trace/screenshot
 
@@ -159,6 +160,12 @@ uv run pytest
 ```
 
 Playwright Chromium이 없다면 `pnpm --filter web exec playwright install chromium`을 한 번 실행합니다. E2E runner는 Next.js와 실제 FastAPI mock 서버를 함께 시작합니다.
+
+## 품목 catalog와 검색
+
+`data/disposal-guides.ko.json`은 10개 AI 분류 metadata와 48개 flat 품목을 함께 보관하는 단일 source-of-truth입니다. Web과 Mobile은 동일한 shared schema와 API를 사용하며, 검색 기록은 각각 브라우저 localStorage와 Mobile AsyncStorage에만 최대 20개를 저장합니다. 검색어는 서버 DB에 저장하지 않습니다.
+
+검색은 이름·별칭·접두어·부분 문자열·키워드 순으로 직접 결과를 정렬하고, 직접 결과와 겹치지 않는 제한된 오타 후보를 별도 제안합니다. catalog는 외부 API key나 runtime 공공 API 호출 없이 동작합니다. 데이터 구조, 출처 작성 규칙과 ranking은 [품목 catalog 문서](docs/item-catalog.md)를 참고하세요.
 
 ## Docker와 배포
 
