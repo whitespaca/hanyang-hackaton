@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,7 @@ from fastapi.testclient import TestClient
 from PIL import Image
 
 from app.config import ROOT_DIR, Settings
+from app.guides import GuideService
 from app.main import create_app
 
 
@@ -109,6 +111,71 @@ def test_guides_list_detail_and_missing(client: TestClient) -> None:
     missing = client.get("/api/v1/guides/plastic/not-here")
     assert missing.status_code == 404
     assert missing.json()["error"]["requestId"]
+
+
+def test_item_catalog_list_detail_and_missing(client: TestClient) -> None:
+    listing = client.get("/api/v1/items")
+    assert listing.status_code == 200
+    items = listing.json()["items"]
+    assert 40 <= len(items) <= 50
+    assert any(item["popular"] for item in items)
+    detail = client.get("/api/v1/items/power-bank")
+    assert detail.status_code == 200
+    assert detail.json()["nameKo"] == "보조배터리"
+    assert detail.json()["reasons"]
+    assert detail.json()["source"]["checkedAt"] == "2026-07-19"
+    missing = client.get("/api/v1/items/not-here")
+    assert missing.status_code == 404
+    assert missing.json()["error"]["code"] == "NOT_FOUND"
+
+
+@pytest.mark.parametrize(
+    ("query", "expected"),
+    [
+        ("보조배터리", "power-bank"),
+        ("휴대용 배터리", "power-bank"),
+        ("보조", "power-bank"),
+        ("배터리", "power-bank"),
+        ("  보조-배터리  ", "power-bank"),
+    ],
+)
+def test_item_search_direct_ranking(client: TestClient, query: str, expected: str) -> None:
+    response = client.get("/api/v1/items/search", params={"q": query, "limit": 8})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["results"][0]["id"] == expected
+    assert not (
+        {item["id"] for item in body["results"]} & {item["id"] for item in body["suggestions"]}
+    )
+
+
+def test_item_search_fuzzy_and_validation(client: TestClient) -> None:
+    typo = client.get("/api/v1/items/search", params={"q": "보조베터리"})
+    assert typo.status_code == 200
+    assert typo.json()["results"] == []
+    assert typo.json()["suggestions"][0]["id"] == "power-bank"
+    one_character = client.get("/api/v1/items/search", params={"q": "ㅂ"})
+    assert one_character.status_code == 200
+    assert one_character.json()["suggestions"] == []
+    assert client.get("/api/v1/items/search", params={"q": "   "}).status_code == 422
+    assert client.get("/api/v1/items/search", params={"q": "캔", "limit": 0}).status_code == 422
+    assert client.get("/api/v1/items/search", params={"q": "캔", "limit": 21}).status_code == 422
+
+
+def test_catalog_rejects_duplicate_id_and_alias(tmp_path: Path) -> None:
+    raw = json.loads((ROOT_DIR / "data" / "disposal-guides.ko.json").read_text(encoding="utf-8"))
+    raw["items"][1]["id"] = raw["items"][0]["id"]
+    duplicate_id = tmp_path / "duplicate-id.json"
+    duplicate_id.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(ValueError, match="Duplicate item id"):
+        GuideService(duplicate_id)
+
+    raw = json.loads((ROOT_DIR / "data" / "disposal-guides.ko.json").read_text(encoding="utf-8"))
+    raw["items"][1]["aliases"] = [raw["items"][0]["aliases"][0]]
+    duplicate_alias = tmp_path / "duplicate-alias.json"
+    duplicate_alias.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(ValueError, match="Duplicate item alias"):
+        GuideService(duplicate_alias)
 
 
 def test_feedback_and_statistics(client: TestClient) -> None:

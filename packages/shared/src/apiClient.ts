@@ -7,6 +7,9 @@ import {
   guideItemSchema,
   guidesResponseSchema,
   healthResponseSchema,
+  itemSearchResponseSchema,
+  itemsResponseSchema,
+  disposalItemSchema,
   statisticsResponseSchema,
   type ClassificationResponse,
   type FeedbackInput,
@@ -15,6 +18,9 @@ import {
   type GuideItem,
   type GuidesResponse,
   type HealthResponse,
+  type ItemSearchResponse,
+  type ItemsResponse,
+  type DisposalItem,
   type StatisticsResponse,
 } from "./schemas";
 import type { ZodType } from "zod";
@@ -48,6 +54,9 @@ export interface GarbageApiClient {
   listGuides(): Promise<GuidesResponse>;
   getCategory(category: GarbageClass): Promise<GuideCategory>;
   getGuide(category: GarbageClass, subcategory: string): Promise<GuideItem>;
+  listItems(): Promise<ItemsResponse>;
+  searchItems(query: string, limit?: number): Promise<ItemSearchResponse>;
+  getItem(itemId: string): Promise<DisposalItem>;
   submitFeedback(input: FeedbackInput): Promise<FeedbackResponse>;
   getStatistics(): Promise<StatisticsResponse>;
 }
@@ -150,6 +159,13 @@ export function createApiClient(
         `/api/v1/guides/${category}/${encodeURIComponent(subcategory)}`,
         guideItemSchema,
       ),
+    listItems: () => request("/api/v1/items", itemsResponseSchema),
+    searchItems: (query, limit = 8) => {
+      const params = new URLSearchParams({ q: query, limit: String(limit) });
+      return request(`/api/v1/items/search?${params.toString()}`, itemSearchResponseSchema);
+    },
+    getItem: (itemId) =>
+      request(`/api/v1/items/${encodeURIComponent(itemId)}`, disposalItemSchema),
     submitFeedback: ({ classificationId, ...body }) =>
       request(
         `/api/v1/classifications/${classificationId}/feedback`,

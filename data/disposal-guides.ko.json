@@ -1,104 +1,2013 @@
 {
-  "version": "2026-07-18",
+  "version": "2026-07-19",
   "locale": "ko-KR",
-  "disclaimer": "이 안내는 일반적인 분리배출 원칙을 요약한 것입니다. 지역별 수거 품목과 배출 방식이 다를 수 있으므로 관할 지자체 기준을 함께 확인해주세요.",
-  "sourceNote": "환경부의 일반적인 분리배출 원칙을 바탕으로 해커톤 시연용 행동 지침으로 정리했습니다.",
+  "disclaimer": "지역별 배출 기준이 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+  "sourceNote": "기후에너지환경부 분리배출 정보조회 서비스와 일반적인 분리배출 원칙을 바탕으로 보수적으로 정리했습니다.",
   "categories": [
     {
       "id": "metal",
       "label": "금속",
-      "description": "캔과 고철 등 금속류",
-      "subcategories": [
-        { "id": "can", "label": "음료·식품 캔", "recyclability": "yes", "steps": ["내용물을 완전히 비웁니다.", "물로 가볍게 헹군 뒤 눌러서 캔류로 배출합니다."], "warnings": ["플라스틱 뚜껑 등 다른 재질은 가능한 한 분리하세요."], "keywords": ["캔", "통조림", "음료캔"] },
-        { "id": "scrap-metal", "label": "고철", "recyclability": "conditional", "steps": ["붙어 있는 고무·플라스틱을 가능한 한 제거합니다.", "다치지 않게 묶거나 용기에 담아 고철류로 배출합니다."], "warnings": ["크기가 큰 품목은 대형폐기물 기준을 확인하세요."], "keywords": ["고철", "철사", "금속"] },
-        { "id": "sharp-metal", "label": "날카로운 금속", "recyclability": "conditional", "steps": ["날 부분을 두꺼운 종이로 감쌉니다.", "겉면에 위험 표시를 한 뒤 지역 기준에 맞게 배출합니다."], "warnings": ["수거 작업자가 다치지 않도록 노출된 날을 반드시 가리세요."], "keywords": ["칼", "면도날", "날카로운"] },
-        { "id": "spray-can", "label": "부탄가스·스프레이 캔", "recyclability": "special", "steps": ["화기 없는 통풍이 잘되는 곳에서 내용물을 완전히 사용합니다.", "지역 지침에 따라 가스 제거 후 지정 장소에 배출합니다."], "warnings": ["불 가까이에서 구멍을 뚫지 마세요.", "지자체마다 천공 여부 기준이 다릅니다."], "keywords": ["부탄가스", "스프레이", "에어로졸"] }
-      ]
+      "description": "캔과 고철 등 금속류"
     },
     {
       "id": "glass",
       "label": "유리",
-      "description": "유리병과 깨진 유리류",
-      "subcategories": [
-        { "id": "beverage-glass-bottle", "label": "음료·식품 유리병", "recyclability": "yes", "steps": ["내용물을 비우고 물로 헹굽니다.", "뚜껑과 다른 재질 부속을 분리해 유리병류로 배출합니다."], "warnings": ["보증금 반환 대상 병은 판매점 반환을 우선 확인하세요."], "keywords": ["유리병", "음료병", "잼병"] },
-        { "id": "broken-glass", "label": "깨진 유리", "recyclability": "no", "steps": ["조각을 신문지나 두꺼운 종이로 여러 겹 감쌉니다.", "겉면에 깨진 유리라고 표시해 지역 종량제 기준에 맞게 배출합니다."], "warnings": ["유리병 수거함에 넣으면 수거 작업자가 다칠 수 있습니다."], "keywords": ["깨진유리", "유리조각", "파편"] },
-        { "id": "mirror-ceramic-heat-resistant", "label": "거울·도자기·내열유리", "recyclability": "no", "steps": ["깨지지 않도록 포장합니다.", "불연성 폐기물 전용 봉투 등 지역 기준에 맞게 배출합니다."], "warnings": ["일반 유리병과 녹는 온도가 달라 함께 재활용하기 어렵습니다."], "keywords": ["거울", "도자기", "내열유리"] }
-      ]
+      "description": "유리병과 깨진 유리류"
     },
     {
       "id": "biological",
       "label": "음식물·생물성",
-      "description": "음식물과 생물성 잔재",
-      "subcategories": [
-        { "id": "food-waste", "label": "일반 음식물", "recyclability": "conditional", "steps": ["물기와 이물질을 최대한 제거합니다.", "지역 음식물 전용 용기나 종량제 방식에 맞게 배출합니다."], "warnings": ["지역별 음식물 분류 기준을 확인하세요."], "keywords": ["음식물", "잔반", "채소"] },
-        { "id": "bones-shells", "label": "뼈·딱딱한 껍데기", "recyclability": "no", "steps": ["수분을 제거합니다.", "동물 뼈와 패각류 등은 일반 종량제 봉투에 배출합니다."], "warnings": ["달걀 껍데기 등 세부 기준은 지역마다 다를 수 있습니다."], "keywords": ["뼈", "조개껍데기", "갑각류"] },
-        { "id": "tea-bag-herbal", "label": "티백·한약재", "recyclability": "no", "steps": ["남은 물기를 제거합니다.", "티백 끈과 포장재를 분리한 뒤 내용물은 지역 기준에 따라 일반쓰레기로 배출합니다."], "warnings": ["퇴비화 가능 여부는 지역 시설 기준을 확인하세요."], "keywords": ["티백", "차", "한약재"] }
-      ]
+      "description": "음식물과 생물성 잔재"
     },
     {
       "id": "paper",
       "label": "종이",
-      "description": "종이와 오염된 종이류",
-      "subcategories": [
-        { "id": "clean-paper", "label": "깨끗한 종이", "recyclability": "yes", "steps": ["비닐 코팅과 스프링 등 다른 재질을 제거합니다.", "물기에 젖지 않게 펼치거나 묶어서 종이류로 배출합니다."], "warnings": ["감열지와 코팅지는 일반 종이와 구분하세요."], "keywords": ["종이", "신문", "책"] },
-        { "id": "coated-or-contaminated-paper", "label": "코팅·오염된 종이", "recyclability": "no", "steps": ["재활용 가능한 깨끗한 부분이 있으면 분리합니다.", "기름이나 음식물로 오염된 부분은 일반 종량제 봉투에 배출합니다."], "warnings": ["영수증과 방수 코팅지는 종이류로 재활용하기 어렵습니다."], "keywords": ["영수증", "코팅지", "기름종이"] }
-      ]
+      "description": "종이와 종이 포장재"
     },
     {
       "id": "battery",
       "label": "배터리",
-      "description": "건전지와 충전식 배터리",
-      "subcategories": [
-        { "id": "household-battery", "label": "일반 건전지", "recyclability": "special", "steps": ["가능하면 양극과 음극을 테이프로 절연합니다.", "공동주택·주민센터 등의 폐건전지 수거함에 배출합니다."], "warnings": ["일반 종량제 봉투에 넣지 마세요."], "keywords": ["건전지", "AA", "AAA"] },
-        { "id": "rechargeable-battery", "label": "충전식 배터리", "recyclability": "special", "steps": ["기기에서 분리하고 단자를 절연합니다.", "폐배터리 수거함 또는 제조사 회수처에 배출합니다."], "warnings": ["부풀거나 손상된 배터리는 누르거나 충전하지 마세요."], "keywords": ["리튬", "충전지", "배터리"] },
-        { "id": "power-bank", "label": "보조배터리", "recyclability": "special", "steps": ["전원을 끄고 케이블을 분리합니다.", "폐건전지 수거함이 아닌 보조배터리 수거 가능 지점을 확인해 배출합니다."], "warnings": ["화재 위험 때문에 일반쓰레기나 재활용품에 섞지 마세요."], "keywords": ["보조배터리", "파워뱅크", "충전기"] }
-      ]
+      "description": "건전지와 충전식 배터리"
     },
     {
       "id": "trash",
       "label": "일반쓰레기",
-      "description": "재활용이 어려운 생활 폐기물",
-      "subcategories": [
-        { "id": "general-trash", "label": "일반쓰레기", "recyclability": "no", "steps": ["재활용품과 음식물 등 분리 가능한 부분을 먼저 나눕니다.", "남은 폐기물은 지역 종량제 봉투에 담아 지정 시간에 배출합니다."], "warnings": ["대형·유해 폐기물은 별도 신고 또는 수거 기준을 확인하세요."], "keywords": ["일반쓰레기", "종량제", "폐기물"] }
-      ]
+      "description": "재활용이 어려운 생활 폐기물"
     },
     {
       "id": "cardboard",
       "label": "골판지",
-      "description": "택배 상자 등 골판지류",
-      "subcategories": [
-        { "id": "cardboard-box", "label": "골판지 상자", "recyclability": "yes", "steps": ["테이프·송장·스티로폼을 모두 제거합니다.", "상자를 펼쳐 납작하게 만든 뒤 젖지 않게 묶어 배출합니다."], "warnings": ["기름이나 음식물로 심하게 오염된 부분은 제거해 일반쓰레기로 배출하세요."], "keywords": ["박스", "택배상자", "골판지"] }
-      ]
+      "description": "택배 상자 등 골판지류"
     },
     {
       "id": "shoes",
       "label": "신발",
-      "description": "재사용 가능한 신발과 폐신발",
-      "subcategories": [
-        { "id": "reusable-shoes", "label": "재사용 가능한 신발", "recyclability": "conditional", "steps": ["흙과 이물질을 털고 한 켤레를 묶습니다.", "의류 수거함의 신발 수거 여부를 확인한 뒤 배출합니다."], "warnings": ["모든 의류 수거함이 신발을 받는 것은 아닙니다."], "keywords": ["운동화", "구두", "재사용"] },
-        { "id": "damaged-shoes", "label": "훼손된 신발", "recyclability": "no", "steps": ["금속 장식 등 쉽게 분리되는 부속을 제거합니다.", "지역 기준에 따라 일반 종량제 봉투에 배출합니다."], "warnings": ["젖거나 심하게 훼손된 신발은 의류 수거함에 넣지 마세요."], "keywords": ["낡은신발", "폐신발", "훼손"] }
-      ]
+      "description": "재사용 가능한 신발과 폐신발"
     },
     {
       "id": "clothes",
       "label": "의류",
-      "description": "재사용 가능한 의류와 폐섬유",
-      "subcategories": [
-        { "id": "reusable-clothes", "label": "재사용 가능한 의류", "recyclability": "conditional", "steps": ["세탁하고 완전히 말립니다.", "투명 봉투 등에 담아 의류 수거함의 허용 품목을 확인해 배출합니다."], "warnings": ["젖은 옷과 오염된 옷은 다른 의류를 훼손할 수 있습니다."], "keywords": ["옷", "헌옷", "의류수거함"] },
-        { "id": "damaged-or-wet-clothes", "label": "훼손·젖은 의류", "recyclability": "no", "steps": ["물기를 충분히 말리고 부피를 줄입니다.", "지역 기준에 따라 일반 종량제 또는 폐기물 방식으로 배출합니다."], "warnings": ["오염되거나 젖은 의류는 수거함에 넣지 마세요."], "keywords": ["젖은옷", "찢어진옷", "오염의류"] }
-      ]
+      "description": "재사용 가능한 의류와 폐섬유"
     },
     {
       "id": "plastic",
       "label": "플라스틱",
-      "description": "페트병·용기·비닐·스티로폼",
-      "subcategories": [
-        { "id": "pet-bottle", "label": "투명 페트병", "recyclability": "yes", "steps": ["내용물을 비우고 물로 가볍게 헹굽니다.", "라벨을 제거하고 찌그러뜨린 뒤 뚜껑을 닫아 배출합니다."], "warnings": ["지역별 투명 페트병 별도 배출 요일을 확인하세요."], "keywords": ["페트병", "생수병", "음료병"] },
-        { "id": "plastic-container", "label": "플라스틱 용기", "recyclability": "conditional", "steps": ["내용물과 음식물을 완전히 비우고 헹굽니다.", "다른 재질의 라벨과 부속을 떼어 플라스틱류로 배출합니다."], "warnings": ["씻어도 오염이 제거되지 않으면 일반쓰레기로 배출하세요."], "keywords": ["플라스틱용기", "반찬통", "컵"] },
-        { "id": "vinyl", "label": "비닐", "recyclability": "conditional", "steps": ["내용물을 비우고 이물질을 닦아냅니다.", "깨끗한 비닐만 흩날리지 않게 모아 비닐류로 배출합니다."], "warnings": ["오염이 제거되지 않은 비닐은 일반쓰레기로 배출하세요."], "keywords": ["비닐", "봉지", "포장지"] },
-        { "id": "styrofoam", "label": "스티로폼", "recyclability": "conditional", "steps": ["테이프·라벨·내용물을 모두 제거합니다.", "깨끗하고 흰 완충재만 지역 스티로폼 수거 방식에 맞게 배출합니다."], "warnings": ["색상·코팅·오염 스티로폼은 재활용이 어려울 수 있습니다."], "keywords": ["스티로폼", "완충재", "발포수지"] },
-        { "id": "unknown-plastic", "label": "재질을 알 수 없는 플라스틱", "recyclability": "conditional", "steps": ["제품의 분리배출 표시와 재질 코드를 확인합니다.", "표시가 없거나 복합재질이면 지역 기준에 따라 일반쓰레기로 배출합니다."], "warnings": ["AI 결과만으로 재질을 확정하지 말고 제품 표시를 우선하세요."], "keywords": ["기타플라스틱", "복합재질", "재질미상"] }
-      ]
+      "description": "페트병·용기·비닐·스티로폼"
+    }
+  ],
+  "items": [
+    {
+      "id": "can",
+      "nameKo": "금속 캔",
+      "aliases": [
+        "음료 캔"
+      ],
+      "keywords": [
+        "캔",
+        "통조림",
+        "알루미늄"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "yes",
+      "summary": "내용물을 비우고 다른 재질을 분리한 뒤 캔류로 배출합니다.",
+      "steps": [
+        "내용물을 완전히 비우고 가볍게 헹궈 주세요.",
+        "플라스틱 뚜껑 등 다른 재질을 분리해 캔류로 배출해 주세요."
+      ],
+      "warnings": [
+        "부탄가스나 스프레이 캔은 별도 안전 절차가 필요합니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "이물질과 다른 재질을 줄이면 선별과 금속 재활용이 쉬워집니다."
+        }
+      ],
+      "spotTypes": [
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "scrap-metal",
+      "nameKo": "고철",
+      "aliases": [
+        "철제 고물"
+      ],
+      "keywords": [
+        "철사",
+        "금속",
+        "고철류"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "conditional",
+      "summary": "분리 가능한 부속을 떼고 다치지 않게 정리해 지역 고철 배출 기준을 확인합니다.",
+      "steps": [
+        "고무·플라스틱 등 쉽게 분리되는 부속을 제거해 주세요.",
+        "날카로운 부분을 감싸고 지역 고철류 배출 방식에 맞춰 주세요."
+      ],
+      "warnings": [
+        "큰 품목은 대형폐기물 신고 대상일 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "혼합 재질과 날카로운 부분은 선별과 수거 안전을 어렵게 합니다."
+        }
+      ],
+      "spotTypes": [
+        "recycling-station",
+        "bulky-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "sharp-metal",
+      "nameKo": "날카로운 금속",
+      "aliases": [
+        "금속 칼날"
+      ],
+      "keywords": [
+        "칼",
+        "날카로운",
+        "철판"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "conditional",
+      "summary": "노출된 날을 감싸고 위험 표시 후 지역 기준에 맞게 배출합니다.",
+      "steps": [
+        "날 부분을 두꺼운 종이나 안전한 용기로 감싸 주세요.",
+        "겉면에 위험 표시를 하고 지역 안내에 따라 배출해 주세요."
+      ],
+      "warnings": [
+        "날을 그대로 노출하면 수거 작업자가 다칠 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "포장과 표시는 수거·선별 과정의 찔림과 베임 사고를 줄입니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "spray-can",
+      "nameKo": "스프레이 캔",
+      "aliases": [
+        "에어로졸 캔"
+      ],
+      "keywords": [
+        "스프레이",
+        "분사",
+        "가스"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "special",
+      "summary": "내용물을 완전히 사용하고 화기 없는 곳에서 지역 가스 제거 기준을 확인합니다.",
+      "steps": [
+        "제품을 끝까지 사용해 내용물을 비워 주세요.",
+        "화기 없는 통풍 장소에서 지자체 안내에 따른 배출 방법을 확인해 주세요."
+      ],
+      "warnings": [
+        "불 가까이에서 구멍을 뚫거나 압착하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "남은 압축가스는 운반·압축 과정에서 화재나 파열 위험을 높입니다."
+        }
+      ],
+      "spotTypes": [
+        "hazardous-waste",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "butane-gas-can",
+      "nameKo": "부탄가스 캔",
+      "aliases": [
+        "휴대용 가스통"
+      ],
+      "keywords": [
+        "부탄",
+        "가스캔",
+        "연료"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "special",
+      "summary": "잔류 가스를 안전하게 제거하고 지자체 지정 방식으로 배출합니다.",
+      "steps": [
+        "화기 없는 통풍 장소에서 제품을 완전히 사용해 주세요.",
+        "지자체가 안내하는 잔류 가스 제거 및 캔류 배출 방법을 따라 주세요."
+      ],
+      "warnings": [
+        "실내나 불꽃 근처에서 가스를 빼거나 구멍을 뚫지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "잔류 가스는 수거 차량과 선별 시설에서 폭발·화재 위험이 될 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "hazardous-waste",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "frying-pan",
+      "nameKo": "프라이팬",
+      "aliases": [
+        "후라이팬"
+      ],
+      "keywords": [
+        "주방",
+        "팬",
+        "고철"
+      ],
+      "classificationCategory": "metal",
+      "group": "metal",
+      "groupLabel": "금속",
+      "recyclability": "conditional",
+      "summary": "손잡이 등 다른 재질을 가능한 만큼 분리하고 지역 고철 또는 대형폐기물 기준을 확인합니다.",
+      "steps": [
+        "기름과 음식물을 깨끗이 제거해 주세요.",
+        "분리 가능한 손잡이를 떼고 지역 고철류 배출 기준을 확인해 주세요."
+      ],
+      "warnings": [
+        "크기와 재질에 따라 종량제 또는 대형폐기물 대상일 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "오염과 복합재질을 줄여야 금속 회수 가능성을 높일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "recycling-station",
+        "bulky-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "umbrella",
+      "nameKo": "우산",
+      "aliases": [
+        "고장 난 우산"
+      ],
+      "keywords": [
+        "우산살",
+        "천",
+        "장우산"
+      ],
+      "classificationCategory": null,
+      "group": "mixed",
+      "groupLabel": "복합재질",
+      "recyclability": "conditional",
+      "summary": "천과 금속 살을 안전하게 분리할 수 있을 때만 나누고 지역 종량제·고철 기준을 확인합니다.",
+      "steps": [
+        "완전히 말리고 접어서 날카로운 살이 튀어나오지 않게 묶어 주세요.",
+        "안전하게 가능한 경우 천과 금속 부분을 분리하고 지역 기준에 맞춰 주세요."
+      ],
+      "warnings": [
+        "억지로 분해하다 다치지 않도록 주의하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "우산은 금속·섬유·플라스틱이 섞여 있어 지역 시설별 처리 방식이 다릅니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "beverage-glass-bottle",
+      "nameKo": "유리병",
+      "aliases": [
+        "음료 유리병"
+      ],
+      "keywords": [
+        "병",
+        "잼병",
+        "식품병"
+      ],
+      "classificationCategory": "glass",
+      "group": "glass",
+      "groupLabel": "유리",
+      "recyclability": "yes",
+      "summary": "내용물을 비우고 뚜껑과 부속을 분리해 유리병류로 배출합니다.",
+      "steps": [
+        "내용물을 비우고 물로 가볍게 헹궈 주세요.",
+        "뚜껑과 다른 재질 부속을 분리해 유리병류로 배출해 주세요."
+      ],
+      "warnings": [
+        "보증금 반환 대상 병은 판매점 반환을 먼저 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "다른 재질과 내용물을 제거하면 유리 재활용 과정의 불순물을 줄일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "glass-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "broken-glass",
+      "nameKo": "깨진 유리컵",
+      "aliases": [
+        "깨진 컵"
+      ],
+      "keywords": [
+        "유리조각",
+        "파편",
+        "유리컵"
+      ],
+      "classificationCategory": "glass",
+      "group": "glass",
+      "groupLabel": "유리",
+      "recyclability": "no",
+      "summary": "조각을 단단히 감싸고 위험 표시 후 지역 불연성·종량제 기준에 맞춰 배출합니다.",
+      "steps": [
+        "조각을 두꺼운 종이나 안전한 용기로 여러 겹 감싸 주세요.",
+        "겉면에 깨진 유리라고 표시하고 지역 안내에 따라 배출해 주세요."
+      ],
+      "warnings": [
+        "유리병 수거함에 느슨한 조각을 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "깨진 조각을 감싸면 배출·수거 과정의 베임 사고를 줄일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "non-combustible-waste",
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "mirror-ceramic-heat-resistant",
+      "nameKo": "도자기·거울·내열유리",
+      "aliases": [
+        "깨진 도자기"
+      ],
+      "keywords": [
+        "도자기",
+        "거울",
+        "내열유리"
+      ],
+      "classificationCategory": "glass",
+      "group": "glass",
+      "groupLabel": "유리",
+      "recyclability": "no",
+      "summary": "깨지지 않게 포장하고 지역 불연성 폐기물 기준을 확인합니다.",
+      "steps": [
+        "조각이나 모서리가 노출되지 않게 두꺼운 종이로 감싸 주세요.",
+        "불연성 전용 봉투 등 관할 지역의 지정 방식을 확인해 주세요."
+      ],
+      "warnings": [
+        "일반 유리병과 함께 배출하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "재질과 녹는 온도가 일반 유리병과 달라 같은 공정에서 재활용하기 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "non-combustible-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "food-waste",
+      "nameKo": "음식물 쓰레기",
+      "aliases": [
+        "남은 음식"
+      ],
+      "keywords": [
+        "잔반",
+        "채소",
+        "음식물"
+      ],
+      "classificationCategory": "biological",
+      "group": "food",
+      "groupLabel": "음식물",
+      "recyclability": "conditional",
+      "summary": "물기와 이물질을 제거해 지역 음식물 수거 방식에 맞춰 배출합니다.",
+      "steps": [
+        "비닐·이쑤시개 등 이물질을 제거해 주세요.",
+        "물기를 줄이고 지역 음식물 전용 용기나 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "사료·퇴비화가 어려운 딱딱한 부산물은 일반쓰레기일 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "이물질과 과도한 수분은 음식물 자원화 공정을 방해할 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "food-waste-bin"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "bones-shells",
+      "nameKo": "치킨 뼈",
+      "aliases": [
+        "닭 뼈"
+      ],
+      "keywords": [
+        "치킨",
+        "뼈",
+        "닭고기"
+      ],
+      "classificationCategory": "biological",
+      "group": "food",
+      "groupLabel": "음식물",
+      "recyclability": "no",
+      "summary": "물기를 제거하고 지역 종량제 기준에 따라 일반쓰레기로 배출합니다.",
+      "steps": [
+        "붙어 있는 음식물과 물기를 가능한 만큼 제거해 주세요.",
+        "지역 종량제 봉투에 다른 일반쓰레기와 안전하게 담아 주세요."
+      ],
+      "warnings": [
+        "딱딱한 뼈는 음식물 수거함에 넣지 않는 것이 일반적입니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "단단한 뼈는 사료·퇴비화 설비에서 분쇄와 처리가 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "egg-shell",
+      "nameKo": "달걀 껍데기",
+      "aliases": [
+        "계란 껍질"
+      ],
+      "keywords": [
+        "달걀",
+        "계란",
+        "껍질"
+      ],
+      "classificationCategory": "biological",
+      "group": "food",
+      "groupLabel": "음식물",
+      "recyclability": "no",
+      "summary": "내용물과 물기를 제거하고 지역 일반쓰레기 기준을 확인합니다.",
+      "steps": [
+        "남은 내용물과 물기를 제거해 주세요.",
+        "부피가 흩어지지 않게 모아 지역 종량제 방식으로 배출해 주세요."
+      ],
+      "warnings": [
+        "일부 지역 기준이 다를 수 있으니 음식물 안내를 함께 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "단단한 껍데기는 일반적인 음식물 자원화 과정에서 처리하기 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "onion-peel",
+      "nameKo": "양파 껍질",
+      "aliases": [
+        "마른 양파 껍질"
+      ],
+      "keywords": [
+        "양파",
+        "채소껍질",
+        "마른껍질"
+      ],
+      "classificationCategory": "biological",
+      "group": "food",
+      "groupLabel": "음식물",
+      "recyclability": "conditional",
+      "summary": "흙과 이물질을 털고 지역 음식물 분류 기준을 확인해 배출합니다.",
+      "steps": [
+        "비닐과 흙 등 이물질을 제거해 주세요.",
+        "관할 지역에서 음식물로 받는지 확인한 뒤 지정 용기 또는 종량제 봉투를 사용해 주세요."
+      ],
+      "warnings": [
+        "지역에 따라 일반쓰레기로 안내될 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "마른 껍질의 처리 가능 여부는 지역 자원화 시설 기준에 따라 달라질 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "food-waste-bin",
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "tea-bag-herbal",
+      "nameKo": "티백",
+      "aliases": [
+        "차 티백"
+      ],
+      "keywords": [
+        "차",
+        "한약재",
+        "티백끈"
+      ],
+      "classificationCategory": "biological",
+      "group": "food",
+      "groupLabel": "음식물",
+      "recyclability": "no",
+      "summary": "물기를 빼고 포장·끈을 분리한 뒤 지역 종량제 기준을 확인합니다.",
+      "steps": [
+        "충분히 식히고 남은 물기를 제거해 주세요.",
+        "끈과 포장재를 분리해 지역 일반쓰레기 방식으로 배출해 주세요."
+      ],
+      "warnings": [
+        "내용물을 임의로 음식물 수거함에 넣기 전에 지역 기준을 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "필터와 끈 같은 복합재질은 음식물 자원화 과정의 이물질이 될 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "clean-paper",
+      "nameKo": "깨끗한 종이",
+      "aliases": [
+        "복사용지"
+      ],
+      "keywords": [
+        "신문",
+        "책",
+        "종이류"
+      ],
+      "classificationCategory": "paper",
+      "group": "paper",
+      "groupLabel": "종이",
+      "recyclability": "yes",
+      "summary": "코팅과 부속을 제거하고 젖지 않게 모아 종이류로 배출합니다.",
+      "steps": [
+        "스프링·비닐·테이프 등 다른 재질을 제거해 주세요.",
+        "젖지 않게 펼치거나 묶어 종이류로 배출해 주세요."
+      ],
+      "warnings": [
+        "감열지와 오염된 종이는 함께 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "깨끗하고 단일한 종이 섬유일수록 재생 원료로 활용하기 쉽습니다."
+        }
+      ],
+      "spotTypes": [
+        "paper-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "coated-or-contaminated-paper",
+      "nameKo": "영수증",
+      "aliases": [
+        "감열지 영수증"
+      ],
+      "keywords": [
+        "감열지",
+        "계산서",
+        "코팅종이"
+      ],
+      "classificationCategory": "paper",
+      "group": "paper",
+      "groupLabel": "종이",
+      "recyclability": "no",
+      "summary": "개인정보를 가리고 지역 종량제 봉투에 배출합니다.",
+      "steps": [
+        "개인정보가 보이면 찢거나 가려 주세요.",
+        "다른 깨끗한 종이와 분리해 지역 종량제 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "감열지는 일반 종이류에 섞지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "감열 코팅과 첨가물은 일반 폐지 재활용 공정의 품질을 떨어뜨릴 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "paper-cup",
+      "nameKo": "종이컵",
+      "aliases": [
+        "일회용 종이컵"
+      ],
+      "keywords": [
+        "컵",
+        "코팅컵",
+        "음료컵"
+      ],
+      "classificationCategory": "paper",
+      "group": "paper",
+      "groupLabel": "종이",
+      "recyclability": "conditional",
+      "summary": "내용물을 비우고 헹군 뒤 별도 종이컵 수거 여부를 확인합니다.",
+      "steps": [
+        "내용물을 완전히 비우고 가볍게 헹궈 말려 주세요.",
+        "일반 종이와 분리해 종이컵 전용 또는 지역 지정 수거함에 배출해 주세요."
+      ],
+      "warnings": [
+        "오염이 제거되지 않으면 일반쓰레기로 배출하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "안쪽 코팅 때문에 일반 종이와 다른 선별·재활용 과정이 필요할 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "paper-cup-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "milk-carton",
+      "nameKo": "우유팩",
+      "aliases": [
+        "종이팩"
+      ],
+      "keywords": [
+        "우유",
+        "주스팩",
+        "살균팩"
+      ],
+      "classificationCategory": "paper",
+      "group": "paper-pack",
+      "groupLabel": "종이팩",
+      "recyclability": "yes",
+      "summary": "내용물을 씻고 펼쳐 말린 뒤 종이팩 별도 수거처를 이용합니다.",
+      "steps": [
+        "내용물을 비우고 물로 헹군 뒤 펼쳐 완전히 말려 주세요.",
+        "일반 종이와 분리해 종이팩 수거함 또는 교환 장소에 배출해 주세요."
+      ],
+      "warnings": [
+        "알루미늄이 붙은 멸균팩의 별도 수거 여부를 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "종이팩은 일반 폐지와 섬유 품질과 가공 방식이 달라 별도 수거가 유리합니다."
+        }
+      ],
+      "spotTypes": [
+        "paper-pack-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "cardboard-box",
+      "nameKo": "골판지 상자",
+      "aliases": [
+        "택배 박스",
+        "종이 상자"
+      ],
+      "keywords": [
+        "골판지",
+        "상자",
+        "포장박스"
+      ],
+      "classificationCategory": "cardboard",
+      "group": "paper",
+      "groupLabel": "골판지",
+      "recyclability": "yes",
+      "summary": "테이프와 송장을 제거하고 납작하게 접어 골판지류로 배출합니다.",
+      "steps": [
+        "테이프·송장·스티로폼을 모두 제거합니다.",
+        "상자를 펼쳐 납작하게 만들고 젖지 않게 묶어 주세요."
+      ],
+      "warnings": [
+        "기름이나 음식물로 심하게 오염된 부분은 제거하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "부속과 오염을 줄이고 납작하게 만들면 선별 품질과 운반 효율이 좋아집니다."
+        }
+      ],
+      "spotTypes": [
+        "paper-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "household-battery",
+      "nameKo": "건전지",
+      "aliases": [
+        "일반 전지"
+      ],
+      "keywords": [
+        "AA",
+        "AAA",
+        "폐건전지"
+      ],
+      "classificationCategory": "battery",
+      "group": "battery",
+      "groupLabel": "배터리",
+      "recyclability": "special",
+      "summary": "단자를 절연하고 폐건전지 전용 수거함에 배출합니다.",
+      "steps": [
+        "양극과 음극을 절연 테이프로 막아 주세요.",
+        "공동주택·주민센터 등의 폐건전지 수거함에 배출해 주세요."
+      ],
+      "warnings": [
+        "일반쓰레기나 다른 재활용품에 섞지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "단자 접촉에 따른 발열 위험을 줄이고 유가금속을 안전하게 회수하기 위해서입니다."
+        }
+      ],
+      "spotTypes": [
+        "battery-box"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "rechargeable-battery",
+      "nameKo": "충전식 배터리",
+      "aliases": [
+        "충전지"
+      ],
+      "keywords": [
+        "리튬",
+        "니켈",
+        "배터리셀"
+      ],
+      "classificationCategory": "battery",
+      "group": "battery",
+      "groupLabel": "배터리",
+      "recyclability": "special",
+      "summary": "기기에서 분리하고 단자를 절연해 지정 수거처에 배출합니다.",
+      "steps": [
+        "기기에서 안전하게 분리하고 단자를 절연해 주세요.",
+        "폐배터리 수거함 또는 제조사 회수처의 허용 품목을 확인해 주세요."
+      ],
+      "warnings": [
+        "부풀거나 손상된 배터리는 누르거나 충전하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "충전식 전지는 단락·손상 시 발열 위험이 있어 일반 폐기물과 분리해야 합니다."
+        }
+      ],
+      "spotTypes": [
+        "battery-box",
+        "manufacturer-takeback"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "power-bank",
+      "nameKo": "보조배터리",
+      "aliases": [
+        "휴대용 배터리"
+      ],
+      "keywords": [
+        "파워뱅크",
+        "충전",
+        "리튬"
+      ],
+      "classificationCategory": "battery",
+      "group": "battery",
+      "groupLabel": "배터리",
+      "recyclability": "special",
+      "summary": "전원을 끄고 단자를 절연해 보조배터리 수거가 가능한 곳에 배출합니다.",
+      "steps": [
+        "전원을 끄고 연결된 케이블을 분리해 주세요.",
+        "노출된 단자를 절연하고 보조배터리를 받는 수거함이나 소형 폐가전 수거처를 확인해 주세요."
+      ],
+      "warnings": [
+        "부풀거나 손상된 제품은 충전하거나 누르지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "금속과 접촉하면 단락과 발열이 발생할 수 있어 분리 수거가 필요합니다."
+        }
+      ],
+      "spotTypes": [
+        "battery-box",
+        "small-electronics"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "fluorescent-lamp",
+      "nameKo": "형광등",
+      "aliases": [
+        "폐형광등"
+      ],
+      "keywords": [
+        "램프",
+        "수은",
+        "조명"
+      ],
+      "classificationCategory": null,
+      "group": "lamp",
+      "groupLabel": "조명",
+      "recyclability": "special",
+      "summary": "깨지지 않게 보관해 폐형광등 전용 수거함을 확인합니다.",
+      "steps": [
+        "제품을 깨뜨리지 말고 원래 포장이나 긴 상자에 넣어 주세요.",
+        "공동주택·주민센터 등의 폐형광등 전용 수거함에 배출해 주세요."
+      ],
+      "warnings": [
+        "깨진 형광등은 직접 만지지 말고 환기 후 지역 안내를 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "형광등은 유리와 유해 성분을 포함할 수 있어 파손 방지와 별도 수거가 필요합니다."
+        }
+      ],
+      "spotTypes": [
+        "lamp-box"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "led-bulb",
+      "nameKo": "LED 전구",
+      "aliases": [
+        "엘이디 전구"
+      ],
+      "keywords": [
+        "LED",
+        "전구",
+        "조명기구"
+      ],
+      "classificationCategory": null,
+      "group": "lamp",
+      "groupLabel": "조명",
+      "recyclability": "special",
+      "summary": "파손되지 않게 포장해 소형 폐가전 또는 지역 지정 수거처를 확인합니다.",
+      "steps": [
+        "전원을 분리하고 충분히 식힌 뒤 파손되지 않게 포장해 주세요.",
+        "지역의 LED 전구 또는 소형 폐가전 수거 가능 장소를 확인해 주세요."
+      ],
+      "warnings": [
+        "폐형광등 수거함이 LED 전구를 받는지 반드시 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "LED 전구는 전자부품이 포함돼 일반 유리나 형광등과 처리 방식이 다를 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "small-electronics",
+        "lamp-box"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "expired-medicine",
+      "nameKo": "폐의약품",
+      "aliases": [
+        "남은 약"
+      ],
+      "keywords": [
+        "알약",
+        "시럽",
+        "연고"
+      ],
+      "classificationCategory": null,
+      "group": "medicine",
+      "groupLabel": "의약품",
+      "recyclability": "special",
+      "summary": "약 종류별 포장을 정리해 약국·보건소 등 지역 폐의약품 수거처를 확인합니다.",
+      "steps": [
+        "개인정보가 있는 처방 봉투는 가리거나 분리해 주세요.",
+        "내용물이 새지 않게 닫아 지역 약국·보건소 등 지정 수거함에 배출해 주세요."
+      ],
+      "warnings": [
+        "하수구나 변기에 버리지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "의약 성분이 생활하수나 일반 폐기물 경로로 유출되는 것을 줄이기 위해 별도 수거합니다."
+        }
+      ],
+      "spotTypes": [
+        "medicine-box",
+        "health-center"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "small-electronics",
+      "nameKo": "소형 폐가전",
+      "aliases": [
+        "소형 전자제품"
+      ],
+      "keywords": [
+        "가전",
+        "전자기기",
+        "전기제품"
+      ],
+      "classificationCategory": null,
+      "group": "electronics",
+      "groupLabel": "폐가전",
+      "recyclability": "special",
+      "summary": "배터리와 개인정보를 처리한 뒤 소형 폐가전 수거처를 이용합니다.",
+      "steps": [
+        "전원을 끄고 분리 가능한 배터리를 별도 수거해 주세요.",
+        "개인정보를 삭제하고 지역 소형 폐가전 수거함 또는 무상 수거 기준을 확인해 주세요."
+      ],
+      "warnings": [
+        "배터리가 부풀었거나 제품이 파손됐다면 별도 안전 안내를 먼저 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "전자제품은 금속·플라스틱·회로가 섞여 있어 전문적인 분해와 자원 회수가 필요합니다."
+        }
+      ],
+      "spotTypes": [
+        "small-electronics",
+        "manufacturer-takeback"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "mobile-phone",
+      "nameKo": "휴대폰",
+      "aliases": [
+        "스마트폰"
+      ],
+      "keywords": [
+        "핸드폰",
+        "모바일",
+        "전자기기"
+      ],
+      "classificationCategory": null,
+      "group": "electronics",
+      "groupLabel": "폐가전",
+      "recyclability": "special",
+      "summary": "개인정보를 삭제하고 유심을 분리해 공식 회수처에 배출합니다.",
+      "steps": [
+        "백업 후 개인정보를 초기화하고 유심·메모리카드를 분리해 주세요.",
+        "제조사·통신사 회수 또는 지역 소형 폐가전 수거처를 이용해 주세요."
+      ],
+      "warnings": [
+        "부푼 배터리가 있는 기기는 충전하거나 누르지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "개인정보 유출을 막고 배터리와 회로 자원을 안전하게 회수하기 위해서입니다."
+        }
+      ],
+      "spotTypes": [
+        "manufacturer-takeback",
+        "small-electronics"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "charger",
+      "nameKo": "충전기",
+      "aliases": [
+        "전원 어댑터"
+      ],
+      "keywords": [
+        "어댑터",
+        "충전",
+        "전자부품"
+      ],
+      "classificationCategory": null,
+      "group": "electronics",
+      "groupLabel": "폐가전",
+      "recyclability": "special",
+      "summary": "케이블을 정리해 소형 폐가전 수거가 가능한 곳에 배출합니다.",
+      "steps": [
+        "콘센트에서 분리하고 먼지와 이물질을 닦아 주세요.",
+        "지역 소형 폐가전 수거함이나 제조사 회수처의 허용 품목을 확인해 주세요."
+      ],
+      "warnings": [
+        "일반 플라스틱류로 배출하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "내부 회로와 금속이 포함돼 단순 플라스틱 재활용 공정에 적합하지 않습니다."
+        }
+      ],
+      "spotTypes": [
+        "small-electronics",
+        "manufacturer-takeback"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "electric-cable",
+      "nameKo": "전선",
+      "aliases": [
+        "폐케이블"
+      ],
+      "keywords": [
+        "케이블",
+        "구리선",
+        "코드"
+      ],
+      "classificationCategory": null,
+      "group": "electronics",
+      "groupLabel": "폐가전",
+      "recyclability": "conditional",
+      "summary": "묶어서 정리하고 지역 소형 폐가전·고철 수거 가능 여부를 확인합니다.",
+      "steps": [
+        "전원과 기기에서 완전히 분리하고 짧게 묶어 주세요.",
+        "지역 수거함이 케이블을 받는지 확인한 뒤 지정 장소에 배출해 주세요."
+      ],
+      "warnings": [
+        "피복을 태우거나 임의로 벗기지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "전선은 금속과 피복이 결합된 복합재질이라 전문 선별이 필요합니다."
+        }
+      ],
+      "spotTypes": [
+        "small-electronics",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "ice-pack",
+      "nameKo": "아이스팩",
+      "aliases": [
+        "냉동팩"
+      ],
+      "keywords": [
+        "보냉",
+        "젤",
+        "냉매"
+      ],
+      "classificationCategory": null,
+      "group": "mixed",
+      "groupLabel": "복합재질",
+      "recyclability": "conditional",
+      "summary": "재사용 수거처를 우선 확인하고 없으면 내용물 표시에 따른 지역 기준을 확인합니다.",
+      "steps": [
+        "파손 여부와 내용물 성분 표시를 확인해 주세요.",
+        "재사용 수거함이 있으면 이용하고, 없으면 내용물과 포장재를 지역 기준에 맞춰 분리해 주세요."
+      ],
+      "warnings": [
+        "고흡수성 젤을 하수구에 흘려보내지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "내용물 성분과 포장재가 제품마다 달라 일괄적인 재활용이 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "reuse-box",
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "reusable-clothes",
+      "nameKo": "의류",
+      "aliases": [
+        "헌옷"
+      ],
+      "keywords": [
+        "옷",
+        "의류수거함",
+        "재사용"
+      ],
+      "classificationCategory": "clothes",
+      "group": "textile",
+      "groupLabel": "의류",
+      "recyclability": "conditional",
+      "summary": "깨끗이 세탁하고 완전히 말려 의류 수거함의 허용 품목을 확인합니다.",
+      "steps": [
+        "세탁하고 완전히 말려 주세요.",
+        "투명 봉투 등에 담아 의류 수거함의 허용 품목을 확인한 뒤 배출해 주세요."
+      ],
+      "warnings": [
+        "젖거나 심하게 오염된 옷은 수거함에 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "깨끗하고 마른 의류는 재사용 가능성을 높이고 다른 수거품의 오염을 막습니다."
+        }
+      ],
+      "spotTypes": [
+        "clothes-bin",
+        "donation-center"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "damaged-or-wet-clothes",
+      "nameKo": "훼손·젖은 의류",
+      "aliases": [
+        "찢어진 옷"
+      ],
+      "keywords": [
+        "젖은옷",
+        "오염의류",
+        "폐섬유"
+      ],
+      "classificationCategory": "clothes",
+      "group": "textile",
+      "groupLabel": "의류",
+      "recyclability": "no",
+      "summary": "충분히 말리고 지역 종량제 또는 폐섬유 배출 기준을 확인합니다.",
+      "steps": [
+        "물기를 충분히 말리고 부피를 줄여 주세요.",
+        "관할 지역의 종량제 또는 폐섬유 배출 방식을 확인해 주세요."
+      ],
+      "warnings": [
+        "다른 재사용 의류와 섞지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "젖거나 오염된 의류는 곰팡이와 악취로 다른 재사용품까지 훼손할 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste",
+        "textile-collection"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "reusable-shoes",
+      "nameKo": "신발",
+      "aliases": [
+        "헌 신발"
+      ],
+      "keywords": [
+        "운동화",
+        "구두",
+        "재사용"
+      ],
+      "classificationCategory": "shoes",
+      "group": "textile",
+      "groupLabel": "신발",
+      "recyclability": "conditional",
+      "summary": "흙을 털고 한 켤레를 묶어 수거함의 신발 허용 여부를 확인합니다.",
+      "steps": [
+        "흙과 이물질을 털고 완전히 말려 주세요.",
+        "한 켤레를 묶어 의류 수거함이 신발을 받는지 확인해 주세요."
+      ],
+      "warnings": [
+        "모든 의류 수거함이 신발을 받는 것은 아닙니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "짝을 맞추고 깨끗하게 보관해야 재사용 가능성을 높일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "clothes-bin",
+        "donation-center"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "damaged-shoes",
+      "nameKo": "훼손된 신발",
+      "aliases": [
+        "폐신발"
+      ],
+      "keywords": [
+        "낡은신발",
+        "찢어진신발",
+        "젖은신발"
+      ],
+      "classificationCategory": "shoes",
+      "group": "textile",
+      "groupLabel": "신발",
+      "recyclability": "no",
+      "summary": "마른 상태로 정리해 지역 종량제 기준을 확인합니다.",
+      "steps": [
+        "흙과 물기를 제거하고 충분히 말려 주세요.",
+        "금속 장식 등 쉽게 분리되는 부속을 떼고 지역 종량제 방식으로 배출해 주세요."
+      ],
+      "warnings": [
+        "재사용 의류 수거함에 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "심하게 훼손된 복합재질 신발은 재사용과 소재 분리가 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "pet-bottle",
+      "nameKo": "투명 페트병",
+      "aliases": [
+        "생수병"
+      ],
+      "keywords": [
+        "PET",
+        "음료병",
+        "페트"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "yes",
+      "summary": "내용물을 비우고 라벨을 제거해 지역 투명 페트병 방식으로 배출합니다.",
+      "steps": [
+        "내용물을 비우고 물로 가볍게 헹궈 주세요.",
+        "라벨을 제거하고 찌그러뜨린 뒤 뚜껑을 닫아 배출해 주세요."
+      ],
+      "warnings": [
+        "유색 페트병과 지역별 별도 배출 요일을 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "깨끗한 투명 PET를 별도로 모으면 고품질 재생 원료로 활용하기 쉽습니다."
+        }
+      ],
+      "spotTypes": [
+        "pet-bottle-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "plastic-container",
+      "nameKo": "일반 플라스틱 용기",
+      "aliases": [
+        "플라스틱 통"
+      ],
+      "keywords": [
+        "반찬통",
+        "용기",
+        "플라스틱"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "내용물을 씻고 다른 재질을 제거해 플라스틱류로 배출합니다.",
+      "steps": [
+        "내용물과 음식물을 완전히 비우고 헹궈 주세요.",
+        "라벨과 금속 등 다른 재질 부속을 떼어 플라스틱류로 배출해 주세요."
+      ],
+      "warnings": [
+        "씻어도 오염이 제거되지 않으면 일반쓰레기로 배출하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "오염과 혼합 재질을 줄여야 플라스틱 선별과 재활용 품질을 높일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "plastic-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "disposable-plastic-cup",
+      "nameKo": "일회용 플라스틱 컵",
+      "aliases": [
+        "테이크아웃 플라스틱컵"
+      ],
+      "keywords": [
+        "아이스컵",
+        "투명컵",
+        "일회용컵"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "음료와 빨대·뚜껑을 분리하고 깨끗이 헹궈 지역 플라스틱 기준을 확인합니다.",
+      "steps": [
+        "남은 음료와 얼음을 비우고 가볍게 헹궈 주세요.",
+        "빨대·뚜껑 등 다른 재질을 분리해 지역 플라스틱류 방식으로 배출해 주세요."
+      ],
+      "warnings": [
+        "재질 표시가 없거나 오염이 남으면 일반쓰레기일 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "음료 잔여물과 다른 재질은 투명 플라스틱의 재활용 품질을 낮춥니다."
+        }
+      ],
+      "spotTypes": [
+        "plastic-bin",
+        "cup-bin"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "vinyl",
+      "nameKo": "비닐",
+      "aliases": [
+        "비닐 봉지"
+      ],
+      "keywords": [
+        "봉지",
+        "필름",
+        "포장비닐"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "이물질을 제거한 깨끗한 비닐만 모아 지역 비닐류 방식으로 배출합니다.",
+      "steps": [
+        "내용물을 비우고 이물질을 닦아 주세요.",
+        "깨끗한 비닐만 흩날리지 않게 모아 비닐류로 배출해 주세요."
+      ],
+      "warnings": [
+        "오염이 제거되지 않은 비닐은 일반쓰레기로 배출하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "깨끗한 필름류만 모아야 선별 과정의 오염과 설비 문제를 줄일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "vinyl-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "styrofoam",
+      "nameKo": "스티로폼 박스",
+      "aliases": [
+        "발포수지 상자"
+      ],
+      "keywords": [
+        "완충재",
+        "EPS",
+        "포장박스"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "테이프와 오염을 제거한 깨끗한 스티로폼만 지정 방식으로 배출합니다.",
+      "steps": [
+        "테이프·라벨·내용물을 모두 제거해 주세요.",
+        "깨끗하고 흰 재질만 지역 스티로폼 수거 방식에 맞춰 주세요."
+      ],
+      "warnings": [
+        "색상·코팅·오염 제품은 재활용이 어려울 수 있습니다."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "부착물과 오염이 없는 발포수지여야 압축·재생 과정에 투입하기 쉽습니다."
+        }
+      ],
+      "spotTypes": [
+        "styrofoam-bin",
+        "recycling-station"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": true
+    },
+    {
+      "id": "cup-noodle-container",
+      "nameKo": "컵라면 용기",
+      "aliases": [
+        "라면 컵"
+      ],
+      "keywords": [
+        "컵라면",
+        "용기",
+        "식품포장"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "국물과 기름기를 제거하고 재질·오염 상태에 따라 지역 기준을 확인합니다.",
+      "steps": [
+        "남은 음식물과 국물을 완전히 비워 주세요.",
+        "깨끗이 씻어 말린 뒤 재질 표시와 지역 분리배출 기준을 확인해 주세요."
+      ],
+      "warnings": [
+        "기름이나 색이 배어 제거되지 않으면 일반쓰레기로 배출하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "식품 오염과 코팅 상태에 따라 실제 재활용 가능성이 크게 달라집니다."
+        }
+      ],
+      "spotTypes": [
+        "plastic-bin",
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "unknown-plastic",
+      "nameKo": "재질을 알 수 없는 플라스틱",
+      "aliases": [
+        "기타 플라스틱"
+      ],
+      "keywords": [
+        "복합재질",
+        "재질미상",
+        "플라스틱표시"
+      ],
+      "classificationCategory": "plastic",
+      "group": "plastic",
+      "groupLabel": "플라스틱",
+      "recyclability": "conditional",
+      "summary": "분리배출 표시를 먼저 확인하고 표시가 없으면 지역 기준에 따라 배출합니다.",
+      "steps": [
+        "제품의 분리배출 표시와 재질 코드를 확인해 주세요.",
+        "표시가 없거나 복합재질이면 관할 지역 기준을 확인해 주세요."
+      ],
+      "warnings": [
+        "AI 결과만으로 재질을 확정하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "플라스틱 종류와 복합재질 여부에 따라 재활용 공정이 달라집니다."
+        }
+      ],
+      "spotTypes": [
+        "plastic-bin",
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "rubber-gloves",
+      "nameKo": "고무장갑",
+      "aliases": [
+        "주방 고무장갑"
+      ],
+      "keywords": [
+        "고무",
+        "장갑",
+        "주방용품"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활용품",
+      "recyclability": "no",
+      "summary": "물기와 오염을 제거해 지역 종량제 봉투에 배출합니다.",
+      "steps": [
+        "음식물과 물기를 제거하고 말려 주세요.",
+        "부피를 줄여 지역 종량제 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "일반 비닐류 수거함에 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "고무장갑은 일반 비닐 포장재와 재질과 처리 공정이 다릅니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "toothbrush",
+      "nameKo": "칫솔",
+      "aliases": [
+        "사용한 칫솔"
+      ],
+      "keywords": [
+        "욕실",
+        "생활용품",
+        "혼합재질"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활용품",
+      "recyclability": "no",
+      "summary": "물기를 제거해 지역 종량제 봉투에 배출합니다.",
+      "steps": [
+        "물기와 치약 잔여물을 제거해 주세요.",
+        "여러 재질을 억지로 분해하지 말고 지역 종량제 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "플라스틱류로 분리배출하지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "작은 크기와 혼합재질 때문에 일반적인 플라스틱 선별이 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "razor",
+      "nameKo": "면도기",
+      "aliases": [
+        "일회용 면도기"
+      ],
+      "keywords": [
+        "면도날",
+        "욕실",
+        "날카로운"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활용품",
+      "recyclability": "no",
+      "summary": "날을 안전하게 감싸고 위험 표시 후 지역 종량제 봉투에 배출합니다.",
+      "steps": [
+        "날 부분을 두꺼운 종이나 작은 용기로 감싸 주세요.",
+        "겉면에 날카로움 표시를 하고 지역 종량제 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "노출된 날을 그대로 버리지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "금속 날과 플라스틱이 결합돼 있고 수거 중 베임 위험이 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "mask",
+      "nameKo": "마스크",
+      "aliases": [
+        "일회용 마스크"
+      ],
+      "keywords": [
+        "보건",
+        "필터",
+        "끈"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활용품",
+      "recyclability": "no",
+      "summary": "오염면이 노출되지 않게 접어 종량제 봉투에 배출합니다.",
+      "steps": [
+        "마스크를 안쪽으로 접고 끈으로 묶어 주세요.",
+        "지역 종량제 봉투에 넣고 손을 씻어 주세요."
+      ],
+      "warnings": [
+        "재활용품이나 의류 수거함에 넣지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "필터와 와이어 등 복합재질이며 위생상 별도 재사용이 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "diaper",
+      "nameKo": "기저귀",
+      "aliases": [
+        "사용한 기저귀"
+      ],
+      "keywords": [
+        "유아용품",
+        "위생",
+        "흡수재"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활용품",
+      "recyclability": "no",
+      "summary": "오염물이 새지 않게 말아 밀봉하고 지역 종량제 방식으로 배출합니다.",
+      "steps": [
+        "오염물이 새지 않게 안쪽으로 말아 고정해 주세요.",
+        "작은 봉투에 밀봉한 뒤 지역 종량제 봉투에 배출해 주세요."
+      ],
+      "warnings": [
+        "변기에 넣거나 재활용품과 섞지 마세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "흡수재와 복합재질, 위생 문제 때문에 일반적인 재활용이 어렵습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
+    },
+    {
+      "id": "general-trash",
+      "nameKo": "일반쓰레기",
+      "aliases": [
+        "종량제 쓰레기"
+      ],
+      "keywords": [
+        "폐기물",
+        "종량제",
+        "재활용불가"
+      ],
+      "classificationCategory": "trash",
+      "group": "household",
+      "groupLabel": "생활폐기물",
+      "recyclability": "no",
+      "summary": "재활용품·음식물·유해 품목을 먼저 분리하고 남은 것만 종량제 방식으로 배출합니다.",
+      "steps": [
+        "재활용품과 음식물 등 분리 가능한 품목을 먼저 나눠 주세요.",
+        "남은 폐기물을 지역 종량제 봉투에 담아 지정 시간에 배출해 주세요."
+      ],
+      "warnings": [
+        "대형·유해 폐기물은 별도 신고 또는 수거 기준을 확인하세요."
+      ],
+      "reasons": [
+        {
+          "title": "이 방식이 필요한 이유",
+          "explanation": "재활용·유해 품목을 먼저 분리해야 소각·매립 부담과 안전 위험을 줄일 수 있습니다."
+        }
+      ],
+      "spotTypes": [
+        "general-waste"
+      ],
+      "regionalNote": "세부 수거 품목과 배출 방식은 지역마다 다를 수 있으므로 관할 지자체 안내를 함께 확인해 주세요.",
+      "source": {
+        "name": "기후에너지환경부 분리배출 정보조회 서비스",
+        "url": "https://www.data.go.kr/data/15156866/openapi.do",
+        "checkedAt": "2026-07-19"
+      },
+      "popular": false
     }
   ]
 }

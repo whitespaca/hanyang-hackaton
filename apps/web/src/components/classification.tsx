@@ -7,7 +7,7 @@ import {
   type ClassificationPrediction,
   type GarbageClass,
   type GuideCategory,
-  type GuideItem,
+  type DisposalItem,
 } from "@bunrishot/shared";
 import Image from "next/image";
 import { useId, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
@@ -59,9 +59,11 @@ export function SubcategoryPicker({ category, onSelect }: { category: GuideCateg
 
 const RECYCLABILITY_LABELS = { yes: "재활용 가능", conditional: "조건부 가능", no: "일반·별도 폐기", special: "전용 수거 필요" } as const;
 
-export function GuideChecklist({ guide }: { guide: GuideItem }) {
+const SPOT_LABELS: Record<string, string> = { "battery-box": "폐전지 수거함", "small-electronics": "소형 폐가전 수거처", "recycling-station": "재활용품 배출장", "general-waste": "종량제 배출", "manufacturer-takeback": "제조사 회수처", "medicine-box": "폐의약품 수거함" };
+
+export function GuideChecklist({ guide }: { guide: DisposalItem }) {
   const [checked, setChecked] = useState<Set<number>>(new Set());
-  return <section aria-label={`${guide.title} 배출 체크리스트`}><span className="eyebrow">{RECYCLABILITY_LABELS[guide.recyclability]}</span><h2 style={{ margin: "8px 0 18px" }}>{guide.title}</h2><div style={{ display: "grid", gap: 12 }}>{guide.steps.map((step, index) => <label key={step} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: 14, background: "#f6f9f7", borderRadius: 12 }}><input aria-label={`${index + 1}단계 완료`} type="checkbox" checked={checked.has(index)} onChange={() => setChecked((current) => { const next = new Set(current); if (next.has(index)) next.delete(index); else next.add(index); return next; })} style={{ width: 20, height: 20 }} /><span><strong>{index + 1}.</strong> {step}</span></label>)}</div>{guide.warnings.length > 0 && <div style={{ marginTop: 18, background: "var(--warning-bg)", padding: 16, borderRadius: 12 }}><strong>주의</strong><ul>{guide.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div>}<p className="muted" style={{ fontSize: 14 }}>{guide.disclaimer}</p></section>;
+  return <section aria-label={`${guide.nameKo} 배출 체크리스트`}><span className="eyebrow">{RECYCLABILITY_LABELS[guide.recyclability]}</span><h2 style={{ margin: "8px 0 8px" }}>{guide.nameKo}</h2><p>{guide.summary}</p>{guide.warnings.length > 0 && <div role="alert" style={{ margin: "18px 0", background: "var(--warning-bg)", padding: 16, borderRadius: 12 }}><strong>먼저 확인하세요</strong><ul>{guide.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></div>}<h3>단계별 배출 체크리스트</h3><div style={{ display: "grid", gap: 12 }}>{guide.steps.map((step, index) => <label key={step} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: 14, background: "#f6f9f7", borderRadius: 12 }}><input aria-label={`${index + 1}단계 완료`} type="checkbox" checked={checked.has(index)} onChange={() => setChecked((current) => { const next = new Set(current); if (next.has(index)) next.delete(index); else next.add(index); return next; })} style={{ width: 20, height: 20 }} /><span><strong>{index + 1}.</strong> {step}</span></label>)}</div><h3>왜 이렇게 버려야 하나요?</h3>{guide.reasons.map((reason) => <div key={reason.title}><strong>{reason.title}</strong><p className="muted">{reason.explanation}</p></div>)}<h3>배출 장소 유형</h3><p>{guide.spotTypes.map((spot) => SPOT_LABELS[spot] ?? spot).join(" · ")}</p><div style={{ borderTop: "1px solid var(--border)", marginTop: 20, paddingTop: 16 }}><strong>지역별 기준 확인</strong><p className="muted">{guide.regionalNote}</p><p className="muted" style={{ fontSize: 14 }}>출처: {guide.source.url ? <a href={guide.source.url} target="_blank" rel="noreferrer" style={{ textDecoration: "underline" }}>{guide.source.name}</a> : guide.source.name} · 확인일 {guide.source.checkedAt}</p></div></section>;
 }
 
 export function ApiErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {

@@ -1,5 +1,24 @@
 # P1/P2 상태 감사
 
+## 품목 catalog/search 작업 기록 (2026-07-19)
+
+- branch: `feat/item-catalog-search`
+- base commit: `0b66d2737ce952b7ddf4f47cff14c04888f8f83a`
+- 상태: working tree 구현 및 로컬 검증 완료, commit/PR 없음
+- data: canonical 10개 category, flat 품목 48개, popular 24개
+- 추가 범위: shared schema/client/recent helper, 품목 list/search/detail API, Web/Mobile 검색·상세·별도 최근 검색
+- 외부 상태: 이 작업의 GitHub Actions, 실기기 QA, 공개 배포는 독립적으로 검증하지 않음
+
+검증 결과:
+
+- PASS: frozen `pnpm install`, guide validator, root lint/typecheck/build, Expo doctor 20/20
+- PASS: shared 7, Web 7, Mobile 15 unit tests
+- PASS: Playwright 12개(기존 AI 8개 + 품목 검색 4개)
+- PASS: API ruff/format/mypy, repository 내부 basetemp에서 pytest 23 passed·1 skipped
+- 환경 실패: root `pnpm test`의 API pytest가 Windows 기본 temp `pytest-of-unknown` 접근 거부로 실패; 같은 suite를 `--basetemp .test-tmp-catalog`로 재실행해 통과
+
+이 작업의 GitHub Actions, 새 실기기 QA와 공개 배포는 실행하지 않았습니다. 이전 commit의 CI나 Android access log를 이번 변경의 검증으로 간주하지 않습니다.
+
 ## 감사 기준
 
 - 감사 날짜: 2026-07-19 (Asia/Seoul)

@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from typing import Any, cast
 from uuid import uuid4
 
-from fastapi import FastAPI, File, Form, Request, UploadFile
+from fastapi import FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -19,12 +19,15 @@ from app.predictors import create_predictor
 from app.repository import SQLiteRepository
 from app.schemas import (
     ClassificationResponse,
+    DisposalItem,
     FeedbackRequest,
     FeedbackResponse,
     GuideCategory,
     GuideItem,
     GuidesResponse,
     HealthResponse,
+    ItemSearchResponse,
+    ItemsResponse,
     ModelInfo,
     PredictionResponse,
     StatisticsResponse,
@@ -161,7 +164,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.get("/api/v1/guides", response_model=GuidesResponse)
     async def list_guides(request: Request) -> GuidesResponse:
-        return guides(request).list()
+        return guides(request).list_guides()
 
     @app.get("/api/v1/guides/{category}", response_model=GuideCategory)
     async def get_category(request: Request, category: GarbageClass) -> GuideCategory:
@@ -170,6 +173,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v1/guides/{category}/{subcategory}", response_model=GuideItem)
     async def get_guide(request: Request, category: GarbageClass, subcategory: str) -> GuideItem:
         return guides(request).detail(category, subcategory)
+
+    @app.get("/api/v1/items", response_model=ItemsResponse)
+    async def list_items(request: Request) -> ItemsResponse:
+        return guides(request).list_items()
+
+    @app.get("/api/v1/items/search", response_model=ItemSearchResponse)
+    async def search_items(
+        request: Request,
+        q: str = Query(min_length=1, pattern=r".*\S.*"),
+        limit: int = Query(default=8, ge=1, le=20),
+    ) -> ItemSearchResponse:
+        return guides(request).search(q, limit)
+
+    @app.get("/api/v1/items/{item_id}", response_model=DisposalItem)
+    async def get_item(request: Request, item_id: str) -> DisposalItem:
+        return guides(request).item(item_id)
 
     @app.post(
         "/api/v1/classifications/{classification_id}/feedback",

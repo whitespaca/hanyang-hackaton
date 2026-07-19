@@ -23,7 +23,9 @@ describe("classification components", () => {
   });
 
   it("checks guide steps", () => {
-    render(<GuideChecklist guide={{ category: "cardboard", subcategory: "cardboard-box", title: "골판지 상자", recyclability: "yes", steps: ["테이프를 제거합니다.", "납작하게 접습니다."], warnings: [], keywords: ["상자"], sourceNote: "일반 원칙", disclaimer: "지역 기준을 확인하세요." }} />);
+    render(<GuideChecklist guide={{ id: "cardboard-box", nameKo: "종이 상자", aliases: ["택배 박스"], classificationCategory: "cardboard", group: "paper", groupLabel: "골판지", recyclability: "yes", summary: "납작하게 배출합니다.", steps: ["테이프를 제거합니다.", "납작하게 접습니다."], warnings: ["젖지 않게 해주세요."], keywords: ["상자"], reasons: [{ title: "이유", explanation: "운반 효율을 높입니다." }], spotTypes: ["paper-bin"], regionalNote: "지역 기준을 확인하세요.", source: { name: "공식 안내", url: null, checkedAt: "2026-07-19" }, popular: true }} />);
     const checkbox = screen.getByRole("checkbox", { name: "1단계 완료" }); fireEvent.click(checkbox); expect(checkbox).toBeChecked();
+    expect(screen.getByText("왜 이렇게 버려야 하나요?")).toBeInTheDocument();
+    expect(screen.getByText(/공식 안내/)).toBeInTheDocument();
   });
 });

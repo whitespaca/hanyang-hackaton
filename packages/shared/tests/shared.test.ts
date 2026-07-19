@@ -3,8 +3,12 @@ import {
   ApiClientError,
   classificationResponseSchema,
   createApiClient,
+  disposalItemSchema,
   formatConfidence,
   isLowConfidence,
+  normalizeSearchText,
+  removeRecentSearch,
+  upsertRecentSearch,
 } from "../src";
 
 describe("shared contract", () => {
@@ -86,5 +90,44 @@ describe("shared contract", () => {
       code: "NETWORK_ERROR",
       cause: transportError,
     });
+  });
+
+  it("validates disposal reasons and sources", () => {
+    const valid = disposalItemSchema.safeParse({
+      id: "power-bank", nameKo: "보조배터리", aliases: ["휴대용 배터리"], keywords: ["충전"],
+      classificationCategory: "battery", group: "battery", groupLabel: "배터리", recyclability: "special",
+      summary: "전용 수거처를 확인합니다.", steps: ["전원을 끕니다.", "단자를 절연합니다."], warnings: ["손상 제품은 충전하지 마세요."],
+      reasons: [{ title: "절연 이유", explanation: "단락을 예방합니다." }], spotTypes: ["battery-box"], regionalNote: "지역 기준을 확인하세요.",
+      source: { name: "공식 안내", url: null, checkedAt: "2026-07-19" }, popular: true,
+    });
+    expect(valid.success).toBe(true);
+    expect(disposalItemSchema.safeParse({ ...valid.data, reasons: [] }).success).toBe(false);
+    expect(disposalItemSchema.safeParse({ ...valid.data, source: { name: "", url: null, checkedAt: "19-07-2026" } }).success).toBe(false);
+  });
+
+  it("normalizes search text and manages recent searches", () => {
+    expect(normalizeSearchText("  보조-배터리! ")).toBe("보조배터리");
+    const first = { itemId: "a", query: "처음", nameKo: "A", searchedAt: "2026-07-19T00:00:00.000Z" };
+    const newer = { itemId: "a", query: "다시", nameKo: "A", searchedAt: "2026-07-19T01:00:00.000Z" };
+    const other = { itemId: "b", query: "둘", nameKo: "B", searchedAt: "2026-07-19T00:30:00.000Z" };
+    expect(upsertRecentSearch([first, other], newer, 2)).toEqual([newer, other]);
+    expect(removeRecentSearch([newer, other], "a")).toEqual([other]);
+    expect(upsertRecentSearch([first], newer, 0)).toEqual([]);
+    const many = Array.from({ length: 22 }, (_, index) => ({
+      itemId: String(index), query: String(index), nameKo: String(index),
+      searchedAt: new Date(Date.UTC(2026, 0, 1, 0, index)).toISOString(),
+    }));
+    expect(upsertRecentSearch(many, newer)).toHaveLength(20);
+    expect(upsertRecentSearch(many, newer)[0]).toEqual(newer);
+  });
+
+  it("encodes item search queries and validates the response", async () => {
+    let requested = "";
+    const client = createApiClient("http://api.example", 1_000, async (input) => {
+      requested = String(input);
+      return new Response(JSON.stringify({ query: "보조 배터리", results: [], suggestions: [] }), { status: 200 });
+    });
+    await client.searchItems("보조 배터리", 5);
+    expect(requested).toBe("http://api.example/api/v1/items/search?q=%EB%B3%B4%EC%A1%B0+%EB%B0%B0%ED%84%B0%EB%A6%AC&limit=5");
   });
 });

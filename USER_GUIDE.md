@@ -118,3 +118,18 @@ pnpm test:e2e:model
 - Web 환경 변수 `NEXT_PUBLIC_API_BASE_URL`은 build-time 값이므로 변경 후 Web을 다시 build합니다.
 
 더 자세한 내용은 [README](README.md), [배포 문서](docs/deployment.md), [troubleshooting](docs/troubleshooting.md)을 참고하세요.
+
+```
+cd apps/api
+
+$env:APP_ENV="development"
+$env:INFERENCE_MODE="model"
+$env:MODEL_PATH="./models/garbage_classifier.pt"
+$env:MODEL_METADATA_PATH="./models/metadata.json"
+
+uv run --extra model python -m uvicorn app.main:app `
+  --host 0.0.0.0 `
+  --port 8000
+
+pnpm --filter mobile start --clear
+```

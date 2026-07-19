@@ -46,14 +46,64 @@ class HealthResponse(ApiModel):
     fallback_reason: str | None = None
 
 
-class GuideItem(ApiModel):
+class DisposalReason(ApiModel):
+    title: str = Field(min_length=1)
+    explanation: str = Field(min_length=1)
+
+
+class DisposalSource(ApiModel):
+    name: str = Field(min_length=1)
+    url: str | None = None
+    checked_at: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+
+
+class DisposalItem(ApiModel):
+    id: str = Field(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    name_ko: str = Field(min_length=1)
+    aliases: list[str]
+    keywords: list[str] = Field(min_length=1)
+    classification_category: GarbageClass | None
+    group: str = Field(min_length=1)
+    group_label: str = Field(min_length=1)
+    recyclability: Literal["yes", "conditional", "no", "special"]
+    summary: str = Field(min_length=1)
+    steps: list[str] = Field(min_length=2)
+    warnings: list[str] = Field(min_length=1)
+    reasons: list[DisposalReason] = Field(min_length=1)
+    spot_types: list[str]
+    regional_note: str = Field(min_length=1)
+    source: DisposalSource
+    popular: bool
+
+
+class ItemSummary(ApiModel):
+    id: str
+    name_ko: str
+    aliases: list[str]
+    classification_category: GarbageClass | None
+    group: str
+    group_label: str
+    recyclability: Literal["yes", "conditional", "no", "special"]
+    summary: str
+    popular: bool
+
+
+class ItemsResponse(ApiModel):
+    version: str
+    locale: str
+    items: list[ItemSummary]
+
+
+class ItemSearchResponse(ApiModel):
+    query: str
+    results: list[ItemSummary]
+    suggestions: list[ItemSummary]
+
+
+class GuideItem(DisposalItem):
     category: GarbageClass
     subcategory: str
     title: str
-    recyclability: Literal["yes", "conditional", "no", "special"]
-    steps: list[str]
-    warnings: list[str]
-    keywords: list[str]
     source_note: str
     disclaimer: str
 
