@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { GARBAGE_CLASSES } from "./constants";
+import { COLLECTION_SPOT_TYPES } from "./spotTypes";
 
 export const garbageClassSchema = z.enum(GARBAGE_CLASSES);
 export const recyclabilitySchema = z.enum(["yes", "conditional", "no", "special"]);
 export const inferenceModeSchema = z.enum(["mock", "model"]);
+export const collectionSpotTypeSchema = z.enum(COLLECTION_SPOT_TYPES);
 
 export const disposalReasonSchema = z.object({
   title: z.string().min(1),
@@ -29,7 +31,10 @@ export const disposalItemSchema = z.object({
   steps: z.array(z.string().min(1)).min(2),
   warnings: z.array(z.string().min(1)).min(1),
   reasons: z.array(disposalReasonSchema).min(1),
-  spotTypes: z.array(z.string().min(1)),
+  spotTypes: z.array(collectionSpotTypeSchema).min(1).refine(
+    (types) => new Set(types).size === types.length,
+    "spotTypes must not contain duplicates",
+  ),
   regionalNote: z.string().min(1),
   source: disposalSourceSchema,
   popular: z.boolean(),
@@ -64,6 +69,52 @@ export const recentSearchItemSchema = z.object({
   query: z.string(),
   nameKo: z.string().min(1),
   searchedAt: z.string().datetime(),
+});
+
+export const collectionSpotSourceSchema = z.object({
+  name: z.string().min(1),
+  url: z.string().url().nullable(),
+  checkedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export const collectionSpotSchema = z.object({
+  id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  nameKo: z.string().min(1),
+  spotTypes: z.array(collectionSpotTypeSchema).min(1),
+  address: z.string().min(1),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  organization: z.string().min(1).nullable(),
+  phone: z.string().min(1).nullable(),
+  operatingHours: z.string().min(1).nullable(),
+  note: z.string().min(1).nullable(),
+  source: collectionSpotSourceSchema,
+});
+
+export const collectionSpotWithDistanceSchema = collectionSpotSchema.extend({
+  distanceKm: z.number().nonnegative(),
+});
+
+export const collectionSpotsResponseSchema = z.object({
+  version: z.string().min(1),
+  locale: z.string().min(1),
+  regionLabel: z.string().min(1),
+  dataMode: z.enum(["fixture", "live"]),
+  disclaimer: z.string().min(1),
+  lastUpdated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  spots: z.array(collectionSpotSchema),
+});
+
+export const nearbySpotsRequestSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  spotTypes: z.array(collectionSpotTypeSchema).min(1).optional(),
+  limit: z.number().int().min(1).max(50).default(20),
+  radiusKm: z.number().positive().max(50).default(10),
+});
+
+export const nearbySpotsResponseSchema = collectionSpotsResponseSchema.omit({ locale: true }).extend({
+  spots: z.array(collectionSpotWithDistanceSchema),
 });
 
 export const predictionSchema = z.object({
@@ -153,6 +204,11 @@ export type ItemSummary = z.infer<typeof itemSummarySchema>;
 export type ItemsResponse = z.infer<typeof itemsResponseSchema>;
 export type ItemSearchResponse = z.infer<typeof itemSearchResponseSchema>;
 export type RecentSearchItem = z.infer<typeof recentSearchItemSchema>;
+export type CollectionSpot = z.infer<typeof collectionSpotSchema>;
+export type CollectionSpotWithDistance = z.infer<typeof collectionSpotWithDistanceSchema>;
+export type CollectionSpotsResponse = z.infer<typeof collectionSpotsResponseSchema>;
+export type NearbySpotsRequest = z.input<typeof nearbySpotsRequestSchema>;
+export type NearbySpotsResponse = z.infer<typeof nearbySpotsResponseSchema>;
 export type GuideItem = z.infer<typeof guideItemSchema>;
 export type GuideCategory = z.infer<typeof guideCategorySchema>;
 export type GuidesResponse = z.infer<typeof guidesResponseSchema>;

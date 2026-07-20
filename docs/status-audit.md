@@ -1,5 +1,28 @@
 # P1/P2 상태 감사
 
+## 수거 장소 작업 기준 및 PR #5 post-merge 확인 (2026-07-19)
+
+- 작업 branch: `feat/collection-spots`
+- base/main merge commit: `e5e4bad5bf695e57ebaa27eac5d930a35dd9b221`
+- PR #5 merged: `e5e4bad5bf695e57ebaa27eac5d930a35dd9b221`
+- validated PR head: `4ec2af4ced863866842b110a7bc5238e1b696696`
+- CI: GitHub Actions run `29666463469`, `node` / `api` / `ml-smoke` / `e2e` success (사용자 제공 감사 근거)
+- merge commit own run: none
+- 현재 작업의 GitHub Actions, 실제 Kakao key/domain, 물리 기기, 공개 배포: 독립적으로 검증하지 않음
+
+이번 작업은 canonical 25개 장소 유형, 춘천시 동면 공식 재활용 배출장소 18곳과 의류수거함 2곳, list/nearby API, Web optional Kakao 지도와 목록 fallback, Mobile foreground 위치와 외부 지도 링크를 추가합니다. 정확한 좌표는 서버·브라우저·기기 storage에 저장하지 않습니다. 재활용 배출장소는 2022년 기준 자료이므로 UI와 문서에 최신성 한계를 명시합니다.
+
+로컬 검증 결과:
+
+- PASS: frozen install, guide/spot validator, root lint/typecheck/build
+- PASS: shared 9개, Web 12개, Mobile 19개 unit/component test
+- PASS: Playwright 16개(기존 12개 + 수거 장소 4개)
+- PASS: API ruff/format/mypy, base dependency 환경에서 pytest 28개 통과·model-extra suite 1개 skip
+- PASS: Expo doctor 20/20
+- 초기 환경 실패: root `pnpm test`의 API 단계가 Windows 기본 temp `pytest-of-unknown` 접근 거부로 실패했습니다. API package wrapper를 저장소 내부 `--basetemp .test-tmp`로 고정한 뒤 root suite가 통과했습니다.
+- PARTIAL: Kakao JavaScript key는 Git에서 제외된 Web 로컬 환경에 설정했고 production build가 통과했습니다. Kakao Web domain과 실제 SDK 지도 렌더링은 검증하지 않았습니다.
+- NOT RUN: Web 실제 위치 권한, Android/iOS 위치 권한·외부 지도 링크, 공개 배포
+
 ## 품목 catalog/search 작업 기록 (2026-07-19)
 
 - branch: `feat/item-catalog-search`

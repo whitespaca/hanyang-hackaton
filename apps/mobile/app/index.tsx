@@ -1,6 +1,6 @@
 import type { RecentSearchItem } from "@bunrishot/shared";
 import * as ImagePicker from "expo-image-picker";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, type Href } from "expo-router";
 import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { ActionButton, ErrorState, Screen } from "@/components/ui";
@@ -62,6 +62,7 @@ export default function HomeScreen() {
     {error && <ErrorState message={error} />}
     <ActionButton label="사진 촬영" onPress={() => router.push("/capture")} />
     <ActionButton label="갤러리에서 선택" variant="secondary" onPress={pickImage} />
+    <ActionButton label="수거 장소 찾기" variant="secondary" onPress={() => router.push("/spots" as Href)} />
     <View style={styles.tip}><Text style={styles.tipTitle}>촬영 팁</Text><Text style={styles.body}>밝은 곳에서 물건 하나만 화면 가운데 크게 담아주세요.</Text></View>
     {__DEV__ && <NetworkDiagnostics />}
     <View style={styles.row}><Text style={styles.sectionTitle}>최근 AI 기록</Text><Text onPress={() => router.push("/history")} accessibilityRole="link" style={styles.link}>전체 보기</Text></View>

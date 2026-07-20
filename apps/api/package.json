@@ -7,7 +7,7 @@
     "build": "uv run python -m compileall -q app",
     "lint": "uv run ruff check . && uv run ruff format --check .",
     "typecheck": "uv run mypy app",
-    "test": "uv run pytest",
+    "test": "uv run pytest --basetemp .test-tmp",
     "test:model": "uv run --extra model pytest tests/test_model_predictor.py",
     "test:model:actual": "uv run --extra model python scripts/test_actual_model.py"
   }

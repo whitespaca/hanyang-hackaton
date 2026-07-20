@@ -1,4 +1,5 @@
 import type { GarbageClass } from "./constants";
+import type { CollectionSpotType } from "./spotTypes";
 import {
   apiErrorBodySchema,
   classificationResponseSchema,
@@ -10,6 +11,8 @@ import {
   itemSearchResponseSchema,
   itemsResponseSchema,
   disposalItemSchema,
+  collectionSpotsResponseSchema,
+  nearbySpotsResponseSchema,
   statisticsResponseSchema,
   type ClassificationResponse,
   type FeedbackInput,
@@ -21,6 +24,9 @@ import {
   type ItemSearchResponse,
   type ItemsResponse,
   type DisposalItem,
+  type CollectionSpotsResponse,
+  type NearbySpotsRequest,
+  type NearbySpotsResponse,
   type StatisticsResponse,
 } from "./schemas";
 import type { ZodType } from "zod";
@@ -57,6 +63,8 @@ export interface GarbageApiClient {
   listItems(): Promise<ItemsResponse>;
   searchItems(query: string, limit?: number): Promise<ItemSearchResponse>;
   getItem(itemId: string): Promise<DisposalItem>;
+  listSpots(spotTypes?: CollectionSpotType[]): Promise<CollectionSpotsResponse>;
+  findNearbySpots(input: NearbySpotsRequest): Promise<NearbySpotsResponse>;
   submitFeedback(input: FeedbackInput): Promise<FeedbackResponse>;
   getStatistics(): Promise<StatisticsResponse>;
 }
@@ -166,6 +174,18 @@ export function createApiClient(
     },
     getItem: (itemId) =>
       request(`/api/v1/items/${encodeURIComponent(itemId)}`, disposalItemSchema),
+    listSpots: (spotTypes = []) => {
+      const params = new URLSearchParams();
+      for (const spotType of spotTypes) params.append("type", spotType);
+      const query = params.toString();
+      return request(`/api/v1/spots${query ? `?${query}` : ""}`, collectionSpotsResponseSchema);
+    },
+    findNearbySpots: (input) =>
+      request("/api/v1/spots/nearby", nearbySpotsResponseSchema, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      }),
     submitFeedback: ({ classificationId, ...body }) =>
       request(
         `/api/v1/classifications/${classificationId}/feedback`,

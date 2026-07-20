@@ -3,6 +3,7 @@ import Link from "next/link";
 const links = [
   ["/classify", "AI 분류"],
   ["/guides", "가이드"],
+  ["/spots", "수거 장소"],
   ["/dashboard", "통계"],
   ["/model", "모델"],
 ] as const;

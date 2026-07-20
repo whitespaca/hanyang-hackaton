@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ApiErrorState, ClassPicker, GuideChecklist, ImagePreview, PredictionList, SubcategoryPicker, UploadDropzone } from "@/components/classification";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { apiClient } from "@/lib/api";
+import { CollectionSpotCta } from "@/components/spots/CollectionSpotCta";
 
 type FlowState = "idle" | "preview" | "uploading" | "result" | "select-class" | "select-subcategory" | "guide" | "error";
 
@@ -61,7 +62,7 @@ export default function ClassifyPage() {
     {state === "result" && result && topPrediction && <div style={{ display: "grid", gap: 22 }}>{result.needsConfirmation && <div role="status" style={{ background: "var(--warning-bg)", padding: 16, borderRadius: 12 }}><strong>정확히 판단하기 어렵습니다.</strong><br />아래 결과를 참고해 직접 종류를 선택해주세요.</div>}<PredictionList predictions={result.predictions} threshold={result.confidenceThreshold} /><div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}><PrimaryButton onClick={() => chooseClass(topPrediction.className)}>맞아요</PrimaryButton><PrimaryButton variant="secondary" onClick={() => setState("select-class")}>다른 종류 선택</PrimaryButton></div><small className="muted">현재 {result.model.inferenceMode === "mock" ? "데모(mock)" : "실제 모델"} 모드 · {result.model.version}</small></div>}
     {state === "select-class" && <ClassPicker onSelect={chooseClass} />}
     {state === "select-subcategory" && category && <SubcategoryPicker category={category} onSelect={chooseSubcategory} />}
-    {state === "guide" && guide && <div><GuideChecklist guide={guide} />{feedbackError && <p role="status" style={{ color: "var(--warning)" }}>가이드는 계속 사용할 수 있지만 피드백 저장에 실패했습니다: {feedbackError}</p>}<PrimaryButton onClick={reset}>처음부터 다시</PrimaryButton></div>}
+    {state === "guide" && guide && <div><GuideChecklist guide={guide} /><CollectionSpotCta item={guide} />{feedbackError && <p role="status" style={{ color: "var(--warning)" }}>가이드는 계속 사용할 수 있지만 피드백 저장에 실패했습니다: {feedbackError}</p>}<div style={{ marginTop: 12 }}><PrimaryButton onClick={reset}>처음부터 다시</PrimaryButton></div></div>}
     {state === "error" && <ApiErrorState message={error} onRetry={file ? analyze : reset} />}
   </div></div></section>;
 }

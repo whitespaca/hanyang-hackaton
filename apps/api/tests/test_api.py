@@ -11,6 +11,7 @@ from PIL import Image
 from app.config import ROOT_DIR, Settings
 from app.guides import GuideService
 from app.main import create_app
+from app.spots import CollectionSpotService
 
 
 def png_bytes(color: tuple[int, int, int] = (28, 120, 92)) -> bytes:
@@ -127,6 +128,87 @@ def test_item_catalog_list_detail_and_missing(client: TestClient) -> None:
     missing = client.get("/api/v1/items/not-here")
     assert missing.status_code == 404
     assert missing.json()["error"]["code"] == "NOT_FOUND"
+
+
+def test_collection_spots_list_filter_and_nearby(client: TestClient) -> None:
+    listing = client.get("/api/v1/spots")
+    assert listing.status_code == 200
+    body = listing.json()
+    assert body["dataMode"] == "fixture"
+    assert body["regionLabel"] == "강원특별자치도 춘천시 동면 시연 데이터"
+    assert len(body["spots"]) == 20
+
+    filtered = client.get(
+        "/api/v1/spots", params=[("type", "recycling-station"), ("type", "clothes-bin")]
+    )
+    assert filtered.status_code == 200
+    assert len(filtered.json()["spots"]) == 20
+    clothes_only = client.get("/api/v1/spots", params={"type": "clothes-bin"})
+    assert [spot["id"] for spot in clothes_only.json()["spots"]] == [
+        "gasan-community-center-clothes-bin",
+        "sanggeol-bridge-clothes-bin",
+    ]
+
+    nearby = client.post(
+        "/api/v1/spots/nearby",
+        json={"latitude": 37.89273948, "longitude": 127.755362, "radiusKm": 5, "limit": 3},
+    )
+    assert nearby.status_code == 200
+    spots = nearby.json()["spots"]
+    assert len(spots) == 3
+    assert spots[0]["id"] == "janghak-bank-pharmacy-recycling"
+    assert [spot["distanceKm"] for spot in spots] == sorted(spot["distanceKm"] for spot in spots)
+    assert client.get("/api/v1/statistics/summary").json()["totalClassifications"] == 0
+
+
+def test_collection_spots_empty_and_request_validation(client: TestClient) -> None:
+    empty = client.post(
+        "/api/v1/spots/nearby",
+        json={
+            "latitude": 37.89273948,
+            "longitude": 127.755362,
+            "spotTypes": ["battery-box"],
+            "radiusKm": 1,
+        },
+    )
+    assert empty.status_code == 200
+    assert empty.json()["spots"] == []
+    assert client.get("/api/v1/spots", params={"type": "unknown"}).status_code == 422
+    assert (
+        client.post("/api/v1/spots/nearby", json={"latitude": 91, "longitude": 0}).status_code
+        == 422
+    )
+    assert (
+        client.post("/api/v1/spots/nearby", json={"latitude": 0, "longitude": 181}).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v1/spots/nearby", json={"latitude": 0, "longitude": 0, "radiusKm": 0}
+        ).status_code
+        == 422
+    )
+    assert (
+        client.post(
+            "/api/v1/spots/nearby", json={"latitude": 0, "longitude": 0, "limit": 51}
+        ).status_code
+        == 422
+    )
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "latitude", "checkedAt"])
+def test_collection_spot_fixture_validation(tmp_path: Path, mutation: str) -> None:
+    raw = json.loads((ROOT_DIR / "data" / "collection-spots.ko.json").read_text(encoding="utf-8"))
+    if mutation == "duplicate":
+        raw["spots"][1]["id"] = raw["spots"][0]["id"]
+    elif mutation == "latitude":
+        raw["spots"][0]["latitude"] = 91
+    else:
+        raw["spots"][0]["source"]["checkedAt"] = "2026/04/15"
+    path = tmp_path / f"invalid-{mutation}.json"
+    path.write_text(json.dumps(raw, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(ValueError):
+        CollectionSpotService(path)
 
 
 @pytest.mark.parametrize(

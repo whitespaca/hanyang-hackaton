@@ -12,6 +12,8 @@ Base URL: `http://localhost:8000/api/v1`. 모든 응답은 `X-Request-ID` 헤더
 - `GET /items`: 전체 품목 summary. data order를 안정적으로 유지하고 `popular` 포함
 - `GET /items/search?q={query}&limit={1..20}`: 이름·alias·keyword 직접 결과와 별도 fuzzy 제안. 기본 limit 8
 - `GET /items/{item_id}`: 이유·지역 안내·출처를 포함한 품목 상세
+- `GET /spots?type={spot_type}`: 검증된 fixture 장소 목록. `type`은 반복 가능
+- `POST /spots/nearby`: 좌표, 선택적 장소 유형, 반경·limit을 JSON body로 받아 거리순 목록 반환
 - `POST /classifications/{id}/feedback`: 익명 확인/수정 저장, 성공 201
 - `GET /statistics/summary`: 총 분류, 평균 confidence, 수정률, 카테고리 수, `demo|live`
 
@@ -22,6 +24,8 @@ curl http://localhost:8000/api/v1/guides/plastic/pet-bottle
 curl http://localhost:8000/api/v1/items
 curl "http://localhost:8000/api/v1/items/search?q=휴대용%20배터리&limit=8"
 curl http://localhost:8000/api/v1/items/power-bank
+curl "http://localhost:8000/api/v1/spots?type=recycling-station&type=clothes-bin"
+curl -X POST -H "Content-Type: application/json" -d '{"latitude":37.89273948,"longitude":127.755362,"spotTypes":["recycling-station"],"radiusKm":10,"limit":20}' http://localhost:8000/api/v1/spots/nearby
 curl -X POST -H "Content-Type: application/json" -d '{"predictedClass":"glass","selectedClass":"plastic","subcategory":"plastic-container","reason":"user_correction"}' http://localhost:8000/api/v1/classifications/CLASSIFICATION_ID/feedback
 ```
 
@@ -40,3 +44,5 @@ curl -X POST -H "Content-Type: application/json" -d '{"predictedClass":"glass","
 주요 코드와 상태는 `UNSUPPORTED_MEDIA_TYPE`(415), `FILE_TOO_LARGE`(413), `INVALID_IMAGE`/`IMAGE_TOO_SMALL`/`VALIDATION_ERROR`(422), `NOT_FOUND`(404), `PREDICTION_MISMATCH`(400), `FEEDBACK_EXISTS`(409)입니다.
 
 품목 상세는 `id`, `nameKo`, `aliases`, `keywords`, nullable `classificationCategory`, 그룹, 재활용 구분, 요약, 단계, 주의사항, 이유, 배출 장소 유형, 지역 안내, 출처와 확인일을 반환합니다. 기존 `/guides` 상세는 호환 필드를 additive projection으로 더하며 같은 상세 내용을 사용합니다.
+
+`POST /spots/nearby`는 위도 `-90..90`, 경도 `-180..180`, 반경 `0 초과..50km`, limit `1..50`을 검증합니다. 장소 유형은 canonical 25개 enum만 허용합니다. 결과가 없으면 오류가 아니라 200과 빈 `spots`를 반환합니다. 정확한 좌표는 저장하지 않으며 request body logging middleware를 추가하지 않습니다.

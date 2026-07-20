@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     confidence_threshold: float = Field(default=0.65, ge=0, le=1)
     cors_origins: str = "http://localhost:3000,http://localhost:8081"
     guides_path: Path = ROOT_DIR / "data" / "disposal-guides.ko.json"
+    spots_path: Path = ROOT_DIR / "data" / "collection-spots.ko.json"
 
     @field_validator("cors_origins")
     @classmethod

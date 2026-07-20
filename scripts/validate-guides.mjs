@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 
 const EXPECTED = ["metal", "glass", "biological", "paper", "battery", "trash", "cardboard", "shoes", "clothes", "plastic"];
 const RECYCLABILITY = new Set(["yes", "conditional", "no", "special"]);
+const SPOT_TYPES = new Set(["battery-box", "bulky-waste", "clothes-bin", "cup-bin", "donation-center", "food-waste-bin", "general-waste", "glass-bin", "hazardous-waste", "health-center", "lamp-box", "manufacturer-takeback", "medicine-box", "non-combustible-waste", "paper-bin", "paper-cup-bin", "paper-pack-bin", "pet-bottle-bin", "plastic-bin", "recycling-station", "reuse-box", "small-electronics", "styrofoam-bin", "textile-collection", "vinyl-bin"]);
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const path = new URL("../data/disposal-guides.ko.json", import.meta.url);
@@ -49,6 +50,11 @@ for (const item of items) {
   if (!item.regionalNote?.trim()) errors.push(`${label}: regionalNote가 필요합니다.`);
   if (!item.source?.name?.trim() || !ISO_DATE.test(item.source?.checkedAt ?? "")) errors.push(`${label}: source.name과 ISO checkedAt이 필요합니다.`);
   if (!Array.isArray(item.keywords) || item.keywords.length < 1 || item.keywords.some((value) => !value?.trim())) errors.push(`${label}: keywords가 필요합니다.`);
+  if (!Array.isArray(item.spotTypes) || item.spotTypes.length < 1) errors.push(`${label}: spotTypes가 최소 1개 필요합니다.`);
+  else {
+    if (new Set(item.spotTypes).size !== item.spotTypes.length) errors.push(`${label}: duplicate spotTypes`);
+    for (const spotType of item.spotTypes) if (!SPOT_TYPES.has(spotType)) errors.push(`${label}: unknown spotType (${spotType})`);
+  }
   if (item.popular === true) popularCount += 1;
 }
 

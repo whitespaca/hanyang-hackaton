@@ -19,6 +19,8 @@ from app.predictors import create_predictor
 from app.repository import SQLiteRepository
 from app.schemas import (
     ClassificationResponse,
+    CollectionSpotsResponse,
+    CollectionSpotType,
     DisposalItem,
     FeedbackRequest,
     FeedbackResponse,
@@ -29,9 +31,12 @@ from app.schemas import (
     ItemSearchResponse,
     ItemsResponse,
     ModelInfo,
+    NearbySpotsRequest,
+    NearbySpotsResponse,
     PredictionResponse,
     StatisticsResponse,
 )
+from app.spots import CollectionSpotService
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -51,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         app.state.repository = repository
         app.state.predictor = predictor
         app.state.guides = GuideService(app_settings.guides_path)
+        app.state.spots = CollectionSpotService(app_settings.spots_path)
         yield
         repository.close()
 
@@ -112,6 +118,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     def guides(request: Request) -> GuideService:
         return cast(GuideService, request.app.state.guides)
+
+    def spots(request: Request) -> CollectionSpotService:
+        return cast(CollectionSpotService, request.app.state.spots)
 
     @app.get("/api/v1/health", response_model=HealthResponse)
     async def health(request: Request) -> HealthResponse:
@@ -189,6 +198,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/api/v1/items/{item_id}", response_model=DisposalItem)
     async def get_item(request: Request, item_id: str) -> DisposalItem:
         return guides(request).item(item_id)
+
+    @app.get("/api/v1/spots", response_model=CollectionSpotsResponse)
+    async def list_spots(
+        request: Request,
+        spot_types: list[CollectionSpotType] | None = Query(default=None, alias="type"),
+    ) -> CollectionSpotsResponse:
+        return spots(request).list(spot_types)
+
+    @app.post("/api/v1/spots/nearby", response_model=NearbySpotsResponse)
+    async def nearby_spots(request: Request, body: NearbySpotsRequest) -> NearbySpotsResponse:
+        return spots(request).nearby(body)
 
     @app.post(
         "/api/v1/classifications/{classification_id}/feedback",

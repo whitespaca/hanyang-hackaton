@@ -6,6 +6,10 @@ import {
   disposalItemSchema,
   formatConfidence,
   isLowConfidence,
+  collectionSpotSchema,
+  formatDistance,
+  haversineDistanceKm,
+  buildKakaoMapDirectionsUrl,
   normalizeSearchText,
   removeRecentSearch,
   upsertRecentSearch,
@@ -129,5 +133,40 @@ describe("shared contract", () => {
     });
     await client.searchItems("보조 배터리", 5);
     expect(requested).toBe("http://api.example/api/v1/items/search?q=%EB%B3%B4%EC%A1%B0+%EB%B0%B0%ED%84%B0%EB%A6%AC&limit=5");
+  });
+
+  it("validates canonical spot types and calculates distance", () => {
+    const spot = {
+      id: "janghak-bank-pharmacy-recycling", nameKo: "은행약국 인근 재활용 배출장소", spotTypes: ["recycling-station"],
+      address: "강원특별자치도 춘천시 동면 장학리 1014", latitude: 37.89273948, longitude: 127.755362,
+      organization: "강원특별자치도 춘천시", phone: null, operatingHours: "18:00~23:00", note: "은행약국 인근",
+      source: { name: "공공데이터포털", url: "https://www.data.go.kr/", checkedAt: "2026-04-15" },
+    };
+    expect(collectionSpotSchema.safeParse(spot).success).toBe(true);
+    expect(collectionSpotSchema.safeParse({ ...spot, spotTypes: ["unknown"] }).success).toBe(false);
+    expect(haversineDistanceKm(37.529254, 127.125563, 37.529254, 127.125563)).toBe(0);
+    expect(haversineDistanceKm(37.5665, 126.978, 35.1796, 129.0756)).toBeGreaterThan(300);
+    expect(formatDistance(0.32)).toBe("320m");
+    expect(formatDistance(1.24)).toBe("1.2km");
+    expect(() => haversineDistanceKm(91, 0, 0, 0)).toThrow(RangeError);
+    expect(buildKakaoMapDirectionsUrl("강동 보건소", 37.5, 127.1)).toContain("%EA%B0%95%EB%8F%99%20%EB%B3%B4%EA%B1%B4%EC%86%8C,37.5,127.1");
+  });
+
+  it("builds repeated spot filters and JSON nearby requests", async () => {
+    const requests: Array<{ url: string; init?: RequestInit }> = [];
+    const client = createApiClient("http://api.example", 1_000, async (input, init) => {
+      requests.push({ url: String(input), ...(init ? { init } : {}) });
+      const nearby = init?.method === "POST";
+      return new Response(JSON.stringify({
+        version: "2026-07-19", ...(nearby ? {} : { locale: "ko-KR" }), regionLabel: "서울 시연",
+        dataMode: "fixture", disclaimer: "방문 전 확인", lastUpdated: "2026-04-15", spots: [],
+      }), { status: 200 });
+    });
+    await client.listSpots(["medicine-box", "health-center"]);
+    await client.findNearbySpots({ latitude: 37.5, longitude: 127, spotTypes: ["medicine-box"] });
+    expect(requests[0]?.url).toBe("http://api.example/api/v1/spots?type=medicine-box&type=health-center");
+    expect(requests[1]?.init?.method).toBe("POST");
+    expect(new Headers(requests[1]?.init?.headers).get("Content-Type")).toBe("application/json");
+    expect(JSON.parse(String(requests[1]?.init?.body))).toMatchObject({ latitude: 37.5, longitude: 127 });
   });
 });
